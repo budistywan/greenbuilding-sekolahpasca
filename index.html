@@ -659,25 +659,211 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
     return [c00.lon,c00.lat,c01.lon,c01.lat,c11.lon,c11.lat,c10.lon,c10.lat];
   }
 
+  /* ══════════════════════════════════════════
+     ORIENTATION ENGINE
+     Menghitung arah cardinal tiap sisi footprint
+     berdasarkan koordinat geografis aktual.
+
+     Footprint 4 titik (indeks 0–3):
+       p0 = [fp[0],fp[1]]   p3 = [fp[6],fp[7]]
+       p1 = [fp[2],fp[3]]   p2 = [fp[4],fp[5]]
+
+     Empat sisi gedung:
+       sisi-u0 (u=0) : tepi p0→p1  (vertikal kiri)
+       sisi-u1 (u=1) : tepi p3→p2  (vertikal kanan)
+       sisi-v0 (v=0) : tepi p0→p3  (horizontal atas)
+       sisi-v1 (v=1) : tepi p1→p2  (horizontal bawah)
+
+     Bearing dihitung dari titik tengah sisi keluar gedung.
+  ══════════════════════════════════════════ */
+  function bearingDeg(lon1, lat1, lon2, lat2) {
+    // Bearing dari (lon1,lat1) ke (lon2,lat2) dalam derajat 0-360
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const φ1   = lat1 * Math.PI / 180;
+    const φ2   = lat2 * Math.PI / 180;
+    const y = Math.sin(dLon) * Math.cos(φ2);
+    const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(dLon);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  }
+
+  function bearingToCardinal(deg) {
+    // 8-arah → dipersempit ke 4 utama untuk keperluan solar
+    const dirs = ["N","NE","E","SE","S","SW","W","NW"];
+    const idx = Math.round(deg / 45) % 8;
+    return dirs[idx];
+  }
+
+  function cardinalToSolar(cardinal) {
+    // Implikasi paparan matahari di Semarang (-6.99°LS)
+    // Matahari bergerak dari Timur → lewat Utara → ke Barat
+    // (karena Semarang di selatan khatulistiwa, matahari cenderung di Utara)
+    const map = {
+      N:  { solar: "sepanjang hari (dominan)", peak: "09.00–15.00", risk: "tinggi" },
+      NE: { solar: "pagi–siang",               peak: "06.00–12.00", risk: "sedang-tinggi" },
+      E:  { solar: "pagi",                      peak: "06.00–10.00", risk: "sedang" },
+      SE: { solar: "pagi awal",                 peak: "06.00–09.00", risk: "rendah-sedang" },
+      S:  { solar: "minimal",                   peak: "—",           risk: "rendah" },
+      SW: { solar: "sore awal",                 peak: "14.00–17.00", risk: "rendah-sedang" },
+      W:  { solar: "sore",                      peak: "13.00–17.30", risk: "sedang-tinggi" },
+      NW: { solar: "sore–senja",                peak: "14.00–18.00", risk: "sedang" },
+    };
+    return map[cardinal] || { solar:"—", peak:"—", risk:"—" };
+  }
+
+  function computeBuildingOrientation(fp) {
+    // fp = [lon0,lat0, lon1,lat1, lon2,lat2, lon3,lat3]
+    const p = [
+      { lon:fp[0], lat:fp[1] },  // p0
+      { lon:fp[2], lat:fp[3] },  // p1
+      { lon:fp[4], lat:fp[5] },  // p2
+      { lon:fp[6], lat:fp[7] },  // p3
+    ];
+    // Centroid gedung
+    const cx = (p[0].lon+p[1].lon+p[2].lon+p[3].lon)/4;
+    const cy = (p[0].lat+p[1].lat+p[2].lat+p[3].lat)/4;
+
+    // Midpoint tiap sisi
+    const mid = {
+      u0: { lon:(p[0].lon+p[1].lon)/2, lat:(p[0].lat+p[1].lat)/2 },  // sisi kiri
+      u1: { lon:(p[3].lon+p[2].lon)/2, lat:(p[3].lat+p[2].lat)/2 },  // sisi kanan
+      v0: { lon:(p[0].lon+p[3].lon)/2, lat:(p[0].lat+p[3].lat)/2 },  // sisi atas
+      v1: { lon:(p[1].lon+p[2].lon)/2, lat:(p[1].lat+p[2].lat)/2 },  // sisi bawah
+    };
+
+    // Bearing dari centroid ke midpoint sisi = arah hadap sisi tersebut
+    const facing = {};
+    for (const [side, m] of Object.entries(mid)) {
+      const bear = bearingDeg(cx, cy, m.lon, m.lat);
+      facing[side] = {
+        bearing:  Math.round(bear),
+        cardinal: bearingToCardinal(bear),
+      };
+    }
+    return facing; // { u0: {bearing, cardinal}, u1: ..., v0: ..., v1: ... }
+  }
+
+  function computeRoomOrientation(rm, buildingFacing) {
+    // Tentukan sisi mana yang menyentuh batas gedung (toleransi 0.001)
+    const EPS = 0.001;
+    const outerEdges   = [];
+    const windowFacing = [];
+    const solarData    = [];
+
+    if (rm.u0 < EPS) {
+      outerEdges.push("u0");
+      const c = buildingFacing.u0.cardinal;
+      windowFacing.push(c);
+      solarData.push({ edge:"u0", cardinal:c, ...cardinalToSolar(c) });
+    }
+    if (rm.u1 > 1 - EPS) {
+      outerEdges.push("u1");
+      const c = buildingFacing.u1.cardinal;
+      windowFacing.push(c);
+      solarData.push({ edge:"u1", cardinal:c, ...cardinalToSolar(c) });
+    }
+    if (rm.v0 < EPS) {
+      outerEdges.push("v0");
+      const c = buildingFacing.v0.cardinal;
+      windowFacing.push(c);
+      solarData.push({ edge:"v0", cardinal:c, ...cardinalToSolar(c) });
+    }
+    if (rm.v1 > 1 - EPS) {
+      outerEdges.push("v1");
+      const c = buildingFacing.v1.cardinal;
+      windowFacing.push(c);
+      solarData.push({ edge:"v1", cardinal:c, ...cardinalToSolar(c) });
+    }
+
+    // Risk tertinggi dari semua sisi luar yang ada
+    const riskOrder = { "tinggi":4, "sedang-tinggi":3, "sedang":2, "rendah-sedang":1, "rendah":0 };
+    const maxRisk = solarData.reduce((acc, s) => {
+      return (riskOrder[s.risk] || 0) > (riskOrder[acc] || 0) ? s.risk : acc;
+    }, "rendah");
+
+    const hasWindow = outerEdges.length > 0;
+
+    return {
+      hasWindow,
+      outerEdges,
+      windowFacing,
+      solarExposure: solarData,
+      thermalRisk:   maxRisk,
+    };
+  }
+
+  // Pre-compute building orientation (dilakukan sekali per gedung)
+  const BUILDING_FACING = {};
+  BUILDINGS.forEach(b => {
+    BUILDING_FACING[b.key] = computeBuildingOrientation(b.footprint);
+  });
+
+  // Log orientasi untuk verifikasi (bisa dihapus setelah canvasing)
+  console.group("Building Orientation — SPs UNDIP");
+  BUILDINGS.forEach(b => {
+    const f = BUILDING_FACING[b.key];
+    console.log(`Gedung ${b.key}:`);
+    console.table({
+      "Sisi u0 (kiri)":  `${f.u0.cardinal} (${f.u0.bearing}°)`,
+      "Sisi u1 (kanan)": `${f.u1.cardinal} (${f.u1.bearing}°)`,
+      "Sisi v0 (atas)":  `${f.v0.cardinal} (${f.v0.bearing}°)`,
+      "Sisi v1 (bawah)": `${f.v1.cardinal} (${f.v1.bearing}°)`,
+    });
+  });
+  console.groupEnd();
+
   /* ── BUILD ROOMS ── */
   const allRooms = [];
+  // Room registry: id → metadata (untuk referensi fitur lanjutan)
+  const ROOM_REGISTRY = {};
+
   function buildRooms(b, groundM) {
     const idxMap = ROOM_INDICES[b.key];
     for (let fl=0; fl<b.levels; fl++) {
       const bot = groundM + fl*b.floorHeight;
       const top = groundM + (fl+1)*b.floorHeight;
       FLOOR_LAYOUTS[fl].forEach((rm,ri) => {
-        const idx = idxMap[fl][ri]??0.5;
+        const idx   = idxMap[fl][ri]??0.5;
+        const roomId = `${b.key}-L${fl+1}-R${ri}`;  // ID unik: e.g. "A-L1-R0"
+        const sfp    = subFootprint(b.footprint,rm.u0,rm.u1,rm.v0,rm.v1);
+
+        const orientation = computeRoomOrientation(rm, BUILDING_FACING[b.key]);
+
+        // Catat ke registry
+        ROOM_REGISTRY[roomId] = {
+          id:       roomId,
+          gedung:   b.key,
+          lantai:   fl+1,
+          ruangIdx: ri,
+          nama:     rm.n,
+          index:    idx,
+          status:   indexToLabel(idx),
+          bottomM:  bot,
+          topM:     top,
+          u0:rm.u0, u1:rm.u1, v0:rm.v0, v1:rm.v1,
+          subFootprint: sfp,
+          // Orientasi & jendela
+          hasWindow:     orientation.hasWindow,
+          outerEdges:    orientation.outerEdges,
+          windowFacing:  orientation.windowFacing,
+          solarExposure: orientation.solarExposure,
+          thermalRisk:   orientation.thermalRisk,
+        };
+
         const ent = viewer.entities.add({
           name: `${b.name} · L${fl+1} · ${rm.n}`,
           polygon: {
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(subFootprint(b.footprint,rm.u0,rm.u1,rm.v0,rm.v1)),
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(sfp),
             height:bot, extrudedHeight:top,
             material: indexToColor(idx),
             outline:true, outlineColor:Cesium.Color.BLACK.withAlpha(.4),
             closeTop:true, closeBottom:true,
           },
-          properties: { __kind:"room", gedung:b.key, lantai:fl+1, ruang:rm.n, index:idx, status:indexToLabel(idx), bottomM:bot, topM:top },
+          properties: {
+            __kind:"room", __id:roomId,
+            gedung:b.key, lantai:fl+1, ruang:rm.n,
+            index:idx, status:indexToLabel(idx),
+            bottomM:bot, topM:top,
+          },
         });
         allRooms.push(ent);
       });
@@ -785,12 +971,53 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
     hit.polygon.outlineColor=Cesium.Color.WHITE.withAlpha(.95);
     const p=hit.properties;
     const get=k=>p[k]?.getValue?.()??p[k];
-    const idx=get("index"),st=get("status");
+    const idx=get("index"),st=get("status"),rid=get("__id");
     const sc={OK:"#1a7a62",Review:"#c8922a",Alert:"#b83232"}[st]||"#888";
     const bw=Math.round(idx*100);
+    const reg=ROOM_REGISTRY[rid]||{};
+
+    // Bangun baris orientasi jendela
+    const riskColor = { "tinggi":"#b83232", "sedang-tinggi":"#c8922a", "sedang":"#ba7517", "rendah-sedang":"#3b6d11", "rendah":"#1a7a62" };
+    let windowHtml = "";
+    if (reg.hasWindow) {
+      const facingStr = reg.windowFacing.join(", ");
+      const riskStr   = reg.thermalRisk || "—";
+      const rc        = riskColor[riskStr] || "#888";
+      const solarRows = (reg.solarExposure||[]).map(s =>
+        `<tr>
+          <td style="color:#666;padding:3px 0;font-size:11px">Sisi ${s.cardinal}</td>
+          <td style="font-size:11px">${s.solar}</td>
+          <td style="font-size:11px;color:#888">${s.peak}</td>
+        </tr>`
+      ).join("");
+      windowHtml = `
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #eee">
+          <div style="font-size:10px;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">Orientasi jendela</div>
+          <div style="font-size:12px;margin-bottom:6px">
+            Menghadap: <b>${facingStr}</b>
+            &nbsp;·&nbsp; Risiko termal:
+            <span style="background:${rc};color:#fff;padding:1px 7px;border-radius:8px;font-size:10px">${riskStr}</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <tr style="color:#aaa"><td>Arah</td><td>Paparan surya</td><td>Puncak</td></tr>
+            ${solarRows}
+          </table>
+        </div>`;
+    } else {
+      windowHtml = `
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #eee;
+          font-size:11px;color:#aaa">
+          Ruang interior — tidak berbatasan dengan dinding luar, tidak ada jendela
+        </div>`;
+    }
+
     viewer.selectedEntity=new Cesium.Entity({
       name:hit.name,
       description:`<div style="font-family:system-ui,sans-serif;font-size:13px;padding:4px">
+        <div style="font-family:monospace;font-size:10px;color:#aaa;margin-bottom:8px;
+          background:#f5f5f5;padding:3px 7px;border-radius:4px;display:inline-block">
+          ID: ${rid}
+        </div>
         <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
           <tr><td style="color:#666;padding:4px 0;width:90px">Gedung</td><td><b>Gedung ${get("gedung")}</b></td></tr>
           <tr><td style="color:#666;padding:4px 0">Lantai</td><td>${get("lantai")}</td></tr>
@@ -803,7 +1030,8 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
           <div style="width:${bw}%;height:100%;background:${sc};border-radius:4px"></div>
         </div>
         <div style="font-size:12px;font-weight:500;color:${sc}">${idx.toFixed(2)} / 1.00</div>
-        <div style="margin-top:8px;font-size:10px;color:#aaa">EUI · PMV · Occupancy · WAC</div>
+        <div style="margin-top:4px;font-size:10px;color:#aaa">EUI · PMV · Occupancy · WAC</div>
+        ${windowHtml}
       </div>`,
     });
     stopOrbit(false);
