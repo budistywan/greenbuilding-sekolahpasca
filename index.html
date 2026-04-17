@@ -955,9 +955,19 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
     navigationHelpButton:false, fullscreenButton:false,
     infoBox:true, selectionIndicator:true,
   });
+  window.viewer = viewer; // expose ke window untuk parameter engine
   viewer.scene.globe.depthTestAgainstTerrain = true;
   viewer.scene.globe.enableLighting = true;
+  viewer.scene.skyAtmosphere = new Cesium.SkyAtmosphere();
+  viewer.scene.skyAtmosphere.show = true;
   viewer.shadows = true;
+
+  // Default clock: hari ini jam 09:00 WIB (02:00 UTC)
+  const _now = new Date();
+  viewer.clock.currentTime = Cesium.JulianDate.fromDate(
+    new Date(Date.UTC(_now.getUTCFullYear(), _now.getUTCMonth(), _now.getUTCDate(), 2, 0, 0))
+  );
+  viewer.clock.shouldAnimate = false;
 
   /* ── OSM ── */
   const osm = await Cesium.Cesium3DTileset.fromIonAssetId(96188);
@@ -1550,6 +1560,38 @@ function indexToColorRgba(v) {
 }
 function indexToLabel(v) { return v<.4?"Alert":v<.65?"Review":"OK"; }
 
+/* ── Update Cesium scene (langit, matahari, fog) ── */
+function updateCesiumScene() {
+  if (typeof window.viewer === 'undefined' || typeof Cesium === 'undefined') return;
+  const v = window.viewer;
+
+  // 1. Update clock → posisi matahari & warna langit otomatis
+  const now = new Date();
+  const hourUTC = ((Math.floor(PARAM.hourMin / 60) - 7) + 24) % 24;
+  const minWIB  = PARAM.hourMin % 60;
+  const clockDate = new Date(Date.UTC(
+    now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+    hourUTC, minWIB, 0
+  ));
+  v.clock.currentTime = Cesium.JulianDate.fromDate(clockDate);
+
+  // 2. Fog density → representasi kelembaban & kondisi langit
+  const skyMult = SKY_MULT[PARAM.sky];
+  const humidFactor = Math.max(0, (PARAM.humid - 60) / 40); // 0 saat RH=60, 1 saat RH=100
+  v.scene.fog.enabled = true;
+  v.scene.fog.density = 0.0001 + (1 - skyMult) * 0.0008 + humidFactor * 0.0003;
+
+  // 3. Atmosphere intensity → lebih redup saat mendung
+  if (v.scene.skyAtmosphere) {
+    v.scene.skyAtmosphere.atmosphereLightIntensity = 10.0 * skyMult;
+    v.scene.skyAtmosphere.show = true;
+  }
+
+  // 4. Globe lighting → terang/redup sesuai kondisi langit
+  v.scene.globe.enableLighting = true;
+  v.scene.globe.atmosphereLightIntensity = 10.0 * skyMult;
+}
+
 /* ── Update Cesium room colors ── */
 function updateCesiumColors() {
   if (typeof window.allRooms === 'undefined' || typeof window.ROOM_REGISTRY === 'undefined') return;
@@ -1629,6 +1671,7 @@ function onParamChange() {
   PARAM.humid   = parseInt(document.getElementById("sl-humid").value);
   PARAM.wind    = parseFloat(document.getElementById("sl-wind").value);
   updateKPIs();
+  updateCesiumScene();
   updateCesiumColors();
 }
 
@@ -1644,6 +1687,7 @@ function applyPreset(btn, key) {
   document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
   if (btn) btn.classList.add("active");
   updateKPIs();
+  updateCesiumScene();
   updateCesiumColors();
 }
 
@@ -1657,6 +1701,7 @@ function setSky(key, btn, skipPresetReset) {
     document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
   }
   updateKPIs();
+  updateCesiumScene();
   updateCesiumColors();
 }
 
