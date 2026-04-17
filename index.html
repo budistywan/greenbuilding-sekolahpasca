@@ -566,10 +566,13 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 }
 /* ── GBCI SCORECARD ── */
 .gbci-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
-.gbci-kpi{background:var(--surface);border-radius:var(--r);padding:13px 15px}
-.gbci-kpi-lbl{font-size:10px;color:var(--gray);margin-bottom:4px;line-height:1.3}
-.gbci-kpi-val{font-size:21px;font-weight:500;color:var(--ink);line-height:1;margin-bottom:2px}
-.gbci-kpi-sub{font-size:10px;color:var(--gray)}
+.gbci-kpi{background:var(--white);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;border-left:3px solid var(--border);position:relative;overflow:hidden}
+.gbci-kpi-lbl{font-size:10px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--gray);margin-bottom:8px;line-height:1.3}
+.gbci-kpi-val{font-size:24px;font-weight:500;color:var(--ink);line-height:1;margin-bottom:5px}
+.gbci-kpi-sub{font-size:11px;color:var(--gray)}
+.gbci-kpi-badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:6px;font-size:15px;font-weight:500;letter-spacing:.01em;margin-bottom:5px}
+.gbci-kpi-progress{height:4px;background:var(--gray-lt);border-radius:2px;overflow:hidden;margin-bottom:5px}
+.gbci-kpi-progress-fill{height:100%;border-radius:2px;transition:width .4s}
 .gbci-ctx{display:flex;align-items:center;gap:7px;padding:9px 13px;background:var(--surface);border-radius:var(--r);margin-bottom:5px;flex-wrap:wrap}
 .gbci-ctx-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .gbci-ctx-lbl{font-size:11px;font-weight:500;color:var(--ink)}
@@ -1209,26 +1212,54 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
   </div>
   <div class="dash-body">
     <div class="gbci-kpi-grid">
-      <div class="gbci-kpi">
+
+      <!-- Card 1: Peringkat -->
+      <div class="gbci-kpi" id="kpiCardRating" style="border-left-color:#854F0B">
         <div class="gbci-kpi-lbl">Peringkat</div>
-        <div class="gbci-kpi-val" id="gbciRating" style="color:#854F0B">Bronze</div>
-        <div class="gbci-kpi-sub">Certifying · Bronze · Silver · Gold</div>
+        <div class="gbci-kpi-badge" id="gbciRatingBadge" style="background:#FAEEDA;color:#633806">Bronze</div>
+        <div class="gbci-kpi-sub" id="gbciRatingSub">Naik ke Silver butuh +6 poin</div>
+        <div style="display:flex;gap:4px;margin-top:8px" id="gbciRatingScale">
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#F1EFE8;color:#444441">Certifying</span>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#FAEEDA;color:#633806;font-weight:500">Bronze ←</span>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#F1EFE8;color:#888580">Silver</span>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#F1EFE8;color:#888580">Gold</span>
+        </div>
       </div>
-      <div class="gbci-kpi">
+
+      <!-- Card 2: Skor -->
+      <div class="gbci-kpi" id="kpiCardSkor" style="border-left-color:#888580">
         <div class="gbci-kpi-lbl">Skor indikatif</div>
         <div class="gbci-kpi-val"><span id="gbciTotal">51</span> <span style="font-size:13px;font-weight:400;color:var(--gray)">poin</span></div>
-        <div class="gbci-kpi-sub">dari maks. 100 · Greenship</div>
+        <div class="gbci-kpi-progress">
+          <div class="gbci-kpi-progress-fill" id="gbciScoreBar" style="width:51%;background:#888580"></div>
+        </div>
+        <div class="gbci-kpi-sub" id="gbciScoreSub">51 dari 100 · skala Greenship</div>
       </div>
-      <div class="gbci-kpi">
+
+      <!-- Card 3: Jarak ke Gold -->
+      <div class="gbci-kpi" id="kpiCardGap" style="border-left-color:#A32D2D">
         <div class="gbci-kpi-lbl">Jarak ke Gold</div>
         <div class="gbci-kpi-val" style="color:var(--red)"><span id="gbciGapVal">+23</span> <span style="font-size:13px;font-weight:400;color:var(--gray)">poin</span></div>
-        <div class="gbci-kpi-sub">target 74 poin untuk Gold</div>
+        <div class="gbci-kpi-progress">
+          <div class="gbci-kpi-progress-fill" id="gbciGapBar" style="width:51%;background:#c8922a"></div>
+        </div>
+        <div class="gbci-kpi-sub" id="gbciGapSub">51 / 74 menuju Gold</div>
       </div>
-      <div class="gbci-kpi">
+
+      <!-- Card 4: Kategori kritis -->
+      <div class="gbci-kpi" id="kpiCardKritis" style="border-left-color:#A32D2D">
         <div class="gbci-kpi-lbl">Kategori operasional kritis</div>
         <div class="gbci-kpi-val" style="color:var(--red)"><span id="gbciKritisVal">2</span> <span style="font-size:13px;font-weight:400;color:var(--gray)">dari 5</span></div>
         <div class="gbci-kpi-sub">EEC &amp; IHC · bervariasi per kondisi</div>
+        <div style="display:flex;gap:4px;margin-top:8px">
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#fceaea;color:#6e1a1a">EEC !</span>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#fceaea;color:#6e1a1a">IHC !</span>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#e0f4ef;color:#0d4d3c">WAC ✓</span>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#e0f4ef;color:#0d4d3c">ASD ✓</span>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:#fdf3e0;color:#7a5510">BEM ~</span>
+        </div>
       </div>
+
     </div>
 
     <div class="gbci-ctx" id="gbciCtxBar">
@@ -2450,8 +2481,72 @@ function updateGBCI(states) {
   function setHtml(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
 
   setEl('gbciTotal', total);
-  var ratingEl=document.getElementById('gbciRating');
-  if(ratingEl){ratingEl.textContent=rating;ratingEl.style.color=ratingColor;}
+
+  // Rating badge + border + scale
+  var badgeEl = document.getElementById('gbciRatingBadge');
+  var ratingCard = document.getElementById('kpiCardRating');
+  var ratingSub = document.getElementById('gbciRatingSub');
+  var ratingScale = document.getElementById('gbciRatingScale');
+  var badgeCfg = {
+    Gold:       {bg:'#FAEEDA', tc:'#412402', border:'#c8922a'},
+    Silver:     {bg:'#F1EFE8', tc:'#444441', border:'#888580'},
+    Bronze:     {bg:'#FAEEDA', tc:'#633806', border:'#854F0B'},
+    Certifying: {bg:'#F1EFE8', tc:'#888580', border:'var(--border)'},
+  };
+  var bc = badgeCfg[rating] || badgeCfg.Bronze;
+  if(badgeEl){badgeEl.textContent=rating;badgeEl.style.background=bc.bg;badgeEl.style.color=bc.tc;}
+  if(ratingCard) ratingCard.style.borderLeftColor=bc.border;
+  if(ratingSub){
+    var toSilver=Math.max(0,53-total), toGold=Math.max(0,74-total);
+    ratingSub.textContent = rating==='Gold'?'Peringkat tertinggi tercapai!':
+      rating==='Silver'?'Butuh +'+toGold+' poin untuk Gold':
+      rating==='Bronze'?'Butuh +'+toSilver+' poin untuk Silver':'Butuh +'+Math.max(0,35-total)+' poin untuk Bronze';
+  }
+  if(ratingScale){
+    var levels=[
+      {k:'Certifying',min:0,max:34,bg:'#F1EFE8',tc:'#888580'},
+      {k:'Bronze',min:35,max:52,bg:'#FAEEDA',tc:'#633806'},
+      {k:'Silver',min:53,max:73,bg:'#E6F1FB',tc:'#0C447C'},
+      {k:'Gold',min:74,max:100,bg:'#FAEEDA',tc:'#412402'},
+    ];
+    ratingScale.innerHTML=levels.map(function(l){
+      var isActive=l.k===rating;
+      return '<span style="font-size:9px;padding:2px 6px;border-radius:4px;background:'+
+        (isActive?l.bg:'var(--surface)')+';color:'+(isActive?l.tc:'var(--gray)')+
+        ';font-weight:'+(isActive?'500':'400')+'">'+l.k+(isActive?' ←':'')+'</span>';
+    }).join('');
+  }
+
+  // Skor progress bar
+  var scoreBar = document.getElementById('gbciScoreBar');
+  var scoreSub = document.getElementById('gbciScoreSub');
+  var skorCard = document.getElementById('kpiCardSkor');
+  var barColor = total>=74?'#c8922a':total>=53?'#888580':total>=35?'#854F0B':'var(--gray)';
+  if(scoreBar){scoreBar.style.width=total+'%';scoreBar.style.background=barColor;}
+  if(scoreSub) scoreSub.textContent=total+' dari 100 · skala Greenship';
+  if(skorCard) skorCard.style.borderLeftColor=barColor;
+
+  // Gap ke Gold progress bar
+  var gapBar = document.getElementById('gbciGapBar');
+  var gapSub = document.getElementById('gbciGapSub');
+  var gapCard = document.getElementById('kpiCardGap');
+  var gapPct = Math.min(100, Math.round(total/74*100));
+  if(gapBar){gapBar.style.width=gapPct+'%';gapBar.style.background=gap===0?'#1a7a62':'#c8922a';}
+  if(gapSub) gapSub.textContent = gap>0 ? total+' / 74 menuju Gold' : 'Target Gold tercapai!';
+  if(gapCard) gapCard.style.borderLeftColor = gap>0?'#A32D2D':'#1a7a62';
+  var gapValEl = document.getElementById('gbciGapVal');
+  if(gapValEl){gapValEl.textContent=gap>0?'+'+gap:'✓';gapValEl.style.color=gap>0?'var(--red)':'#1a7a62';}
+
+  // Kategori kritis pills
+  var kritisCard = document.getElementById('kpiCardKritis');
+  var kritisVal = document.getElementById('gbciKritisVal');
+  var eecKritis = eecPts < 22;
+  var ihcKritis = ihcPts < 10;
+  var kritisN = (eecKritis?1:0)+(ihcKritis?1:0);
+  if(kritisVal){kritisVal.textContent=kritisN;kritisVal.style.color=kritisN>0?'var(--red)':'#1a7a62';}
+  if(kritisCard) kritisCard.style.borderLeftColor=kritisN>0?'#A32D2D':'#1a7a62';
+  var ratingEl=document.getElementById('gbciRatingBadge');
+  if(ratingEl){ratingEl.textContent=rating;ratingEl.style.background=bc.bg;ratingEl.style.color=bc.tc;}
   setEl('gbciGapVal', gap>0?'+'+gap:'0');
   setHtml('gbciGapBox', gap>0?'+'+gap+' poin':'<span style="color:#3B6D11">Gold tercapai!</span>');
   document.getElementById('footerRating').textContent = rating;
