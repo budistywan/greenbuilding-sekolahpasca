@@ -416,21 +416,39 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 .room-mini {
   background: var(--white);
   border: 0.5px solid var(--border);
-  border-radius: var(--r);
-  padding: 10px 12px;
-  position: relative; overflow: hidden;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .15s;
 }
-.room-mini::before {
-  content: ''; position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-}
-.room-mini.pmv-ok::before    { background: var(--teal); }
-.room-mini.pmv-warn::before  { background: var(--gold); }
-.room-mini.pmv-hot::before   { background: var(--red); }
-.room-mini.pmv-cold::before  { background: var(--blue); }
-.rm-name { font-size: 11px; font-weight: 500; color: var(--ink); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rm-pmv  { font-family: var(--font-m); font-size: 18px; font-weight: 500; line-height: 1; }
-.rm-meta { font-size: 10px; color: var(--gray); margin-top: 3px; }
+.room-mini:hover { border-color: var(--border2); }
+.room-mini::before { content:''; display:block; height:3px; width:100%; }
+.room-mini.pmv-hot::before  { background: var(--red); }
+.room-mini.pmv-warn::before { background: var(--gold); }
+.room-mini.pmv-ok::before   { background: var(--teal); }
+.room-mini.pmv-cold::before { background: var(--blue); }
+.rc-top { padding:9px 11px 7px; border-bottom:0.5px solid var(--border); }
+.rc-label { font-size:10px; font-weight:500; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:7px; }
+.rc-icons { display:flex; align-items:center; gap:5px; }
+.rc-icon  { display:flex; flex-direction:column; align-items:center; gap:2px; flex:1; }
+.rc-icon-val { font-size:11px; font-weight:500; font-family:var(--font-m); line-height:1; }
+.rc-icon-lbl { font-size:9px; color:var(--gray); line-height:1; opacity:.7; }
+.rc-divider  { width:1px; height:26px; background:var(--border); align-self:center; }
+.rc-pmv      { padding:7px 11px 9px; display:flex; align-items:center; gap:8px; }
+.rc-pmv-val  { font-family:var(--font-m); font-size:19px; font-weight:500; line-height:1; min-width:52px; }
+.rc-pmv-bar-wrap { flex:1; }
+.rc-pmv-bar  { height:4px; background:var(--gray-lt); border-radius:2px; overflow:hidden; margin-bottom:3px; }
+.rc-pmv-fill { height:100%; border-radius:2px; }
+.rc-pmv-range { display:flex; justify-content:space-between; font-size:9px; color:var(--gray); opacity:.6; }
+.rc-chevron  { font-size:10px; color:var(--gray); text-align:center; padding:3px 0; cursor:pointer; user-select:none; border-top:0.5px solid var(--border); }
+.rc-expand   { display:none; padding:9px 11px; border-top:0.5px solid var(--border); }
+.rc-expand.open { display:block; }
+.rc-expand-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.rc-expand-lbl { color:var(--gray); font-size:10px; opacity:.8; }
+.rc-expand-val { font-family:var(--font-m); font-size:11px; font-weight:500; }
+.rc-override-note { margin-top:6px; padding-top:6px; border-top:0.5px solid var(--border); font-size:10px; color:var(--gray); display:flex; align-items:center; gap:5px; }
+.rc-override-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+
 
 /* ── MODE OPERASI ── */
 #mode-section {
@@ -2032,7 +2050,6 @@ document.getElementById("scroll-zone").addEventListener("touchmove", (e) => {
    Mengubah perilaku AC di seluruh sistem
 ══════════════════════════════════════════ */
 const SCENARIOS = {
-  hemat: {
     label:       'Hemat Energi',
     ACSetpoint:  26.0,
     ACmult:      0.60,   // AC lebih lemah/konservatif
@@ -2120,6 +2137,7 @@ const JADWAL = {
 function computeRoomState(reg, param) {
   var p = param || window.PARAM || { hourMin:540, temp:29, humid:72, wind:2, sky:'sunny' };
   var scenario = getScenario();
+  var override = (window.ROOM_OVERRIDES && window.ROOM_OVERRIDES[reg.id]) || null;
   var skyMultMap = { sunny:1.0, partial:0.6, cloudy:0.3, overcast:0.1 };
   var h = Math.floor(p.hourMin / 60);
   var jadwal = JADWAL[reg.tipe] || JADWAL.kuliah;
@@ -2145,13 +2163,20 @@ function computeRoomState(reg, param) {
   var dtSolar = 0;
   if (reg.hasWindow && active.length>0) {
     var hit = (reg.windowFacing||[]).filter(function(f){return active.indexOf(f)>=0;}).length;
-    if (hit>0) dtSolar = 4.0 * si * (hit / (reg.windowFacing.length||1));
+    if (hit>0) {
+      dtSolar = 4.0 * si * (hit / (reg.windowFacing.length||1));
+      // Apply shading override: 0°=tertutup(5%), 90°=terbuka(100%)
+      var shadingAngle = 90;
+      if (override && override.shadingAngle !== undefined) shadingAngle = override.shadingAngle;
+      var shadingFactor = (shadingAngle / 90) * 0.95 + 0.05;
+      dtSolar = dtSolar * shadingFactor;
+    }
   }
   var dtOrang = orang * 0.055;
   var tOutEff = Math.max(0, (p.temp - 26) * 0.35);
   var tBeban  = 26.0 + dtSolar + dtOrang + tOutEff;
 
-  var ACSetpoint  = scenario.ACSetpoint;
+  var ACSetpoint = (override && override.ACSetpoint != null) ? override.ACSetpoint : scenario.ACSetpoint;
   var heatLoad    = Math.max(0, tBeban - ACSetpoint);
   var acPerOrang  = 0.15 + (reg.kapasitas || 10) * 0.003;
   var ACcapFactor = Math.min(1.0, (acPerOrang*(reg.kapasitas||10)) / Math.max(1, heatLoad)) * scenario.ACmult;
@@ -2370,26 +2395,73 @@ function generateInsightfulRecs(states, param) {
 
 
 function renderInsightRecs(recs) {
-  const el=document.getElementById('insightRecGrid');
-  const cEl=document.getElementById('recCount');
+  var el=document.getElementById('insightRecGrid');
+  var cEl=document.getElementById('recCount');
   if(!el) return;
-  if(cEl){const hi=recs.filter(r=>r.priority==='high').length;cEl.textContent=`${recs.length} rekomendasi${hi>0?' · '+hi+' prioritas tinggi':''}`;}
-  if(!recs.length){el.innerHTML='<div class="card" style="text-align:center;padding:24px;color:var(--gray);font-size:13px">✓ Kondisi gedung dalam parameter normal pada jam ini.</div>';return;}
-  el.innerHTML=recs.map(r=>`<div class="insight-card priority-${r.priority}">
-    <div class="insight-icon" style="background:${r.iconBg}">${r.icon}</div>
-    <div class="insight-body">
-      <div class="insight-headline">${r.headline}</div>
-      <div class="insight-reasoning">${r.reasoning}</div>
-      <div class="insight-action" style="background:${r.iconBg};color:${r.tagColor}">→ ${r.action}</div>
-      <div class="insight-impact">Dampak estimasi: ${r.impact}</div>
-    </div>
-    <div class="insight-meta">
-      <span class="insight-tag" style="background:${r.tagBg};color:${r.tagColor}">${r.tag}</span>
-      <span class="insight-time">${r.timeCtx}</span>
-      <span class="insight-time" style="margin-top:2px">${r.priority==='high'?'⚠ Segera':r.priority==='med'?'· Disarankan':'· Opsional'}</span>
-    </div>
-  </div>`).join('');
+  if(cEl){var hi=recs.filter(function(r){return r.priority==='high';}).length;cEl.textContent=recs.length+' rekomendasi'+(hi>0?' · '+hi+' prioritas tinggi':'');}
+  if(!recs.length){el.innerHTML='<div class="card" style="text-align:center;padding:24px;color:var(--gray);font-size:13px">Kondisi gedung dalam parameter normal pada jam ini.</div>';return;}
+
+  el.innerHTML=recs.map(function(r) {
+    var ovr = window.ROOM_OVERRIDES && r.id && window.ROOM_OVERRIDES[r.id.replace('_pc','').replace('_lo','')];
+    var hasOvr = !!ovr;
+    var ovrBadge = hasOvr ? '<div style="font-size:10px;color:#BA7517;margin-top:4px">⚙ Override aktif</div>' : '';
+
+    // Action controls — setpoint slider + shading slider if relevant
+    var roomId = r.id ? r.id.replace('_pc','').replace('_lo','') : null;
+    var roomReg = roomId && window.ROOM_REGISTRY ? window.ROOM_REGISTRY[roomId] : null;
+    var currentAC = (ovr&&ovr.ACSetpoint!=null) ? ovr.ACSetpoint : (window.SCENARIOS&&window.SCENARIOS[window.ACTIVE_SCENARIO] ? window.SCENARIOS[window.ACTIVE_SCENARIO].ACSetpoint : 24);
+    var currentShading = (ovr&&ovr.shadingAngle!=null) ? ovr.shadingAngle : 90;
+    var hasWindow = roomReg && roomReg.hasWindow;
+
+    var controls = '';
+    if(roomId) {
+      var uid = 'ctrl-'+roomId.replace(/[^a-z0-9]/gi,'');
+      controls = '<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)">'
+        +'<div style="font-size:10px;color:var(--gray);margin-bottom:8px;font-weight:500;letter-spacing:.06em;text-transform:uppercase">Override ruang ini</div>'
+        // AC setpoint slider
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        +'<span style="font-size:10px;color:var(--gray);width:80px;flex-shrink:0">Setpoint AC</span>'
+        +'<input type="range" min="20" max="28" step="0.5" value="'+currentAC+'" id="sl-ac-'+uid+'"'
+        +' style="flex:1;accent-color:#c8922a" oninput="previewOverride(''+roomId+'',''+uid+'')">'
+        +'<span id="out-ac-'+uid+'" style="font-size:11px;font-family:var(--font-m);font-weight:500;min-width:36px;text-align:right">'+currentAC+'°C</span>'
+        +'</div>';
+
+      if(hasWindow) {
+        controls += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+          +'<span style="font-size:10px;color:var(--gray);width:80px;flex-shrink:0">Shading 0–90°</span>'
+          +'<input type="range" min="0" max="90" step="5" value="'+currentShading+'" id="sl-sh-'+uid+'"'
+          +' style="flex:1;accent-color:#1e5fa8" oninput="previewOverride(''+roomId+'',''+uid+'')">'
+          +'<span id="out-sh-'+uid+'" style="font-size:11px;font-family:var(--font-m);font-weight:500;min-width:36px;text-align:right">'+currentShading+'°</span>'
+          +'</div>';
+      }
+
+      // Preview line
+      controls += '<div id="prev-'+uid+'" style="font-size:11px;color:var(--gray);margin-bottom:8px;min-height:16px"></div>'
+        // Buttons
+        +'<div style="display:flex;gap:6px">'
+        +'<button onclick="terapkanOverride(''+roomId+'',''+uid+'')" style="flex:1;font-size:11px;padding:5px 0;cursor:pointer;background:rgba(200,146,42,0.12);border:1px solid rgba(200,146,42,0.4);border-radius:6px;color:#7a5510;font-family:var(--font-b)">Terapkan</button>'
+        +(hasOvr?'<button onclick="clearOverride(''+roomId+'')" style="font-size:11px;padding:5px 10px;cursor:pointer;background:var(--surface);border:0.5px solid var(--border);border-radius:6px;color:var(--gray);font-family:var(--font-b)">Reset</button>':'')
+        +'</div></div>';
+    }
+
+    return '<div class="insight-card priority-'+r.priority+'">'
+      +'<div class="insight-icon" style="background:'+r.iconBg+'">'+r.icon+'</div>'
+      +'<div class="insight-body">'
+      +'<div class="insight-headline">'+r.headline+'</div>'
+      +'<div class="insight-reasoning">'+r.reasoning+'</div>'
+      +'<div class="insight-action" style="background:'+r.iconBg+';color:'+r.tagColor+'">→ '+r.action+'</div>'
+      +'<div class="insight-impact">Dampak estimasi: '+r.impact+'</div>'
+      + ovrBadge
+      + controls
+      +'</div>'
+      +'<div class="insight-meta">'
+      +'<span class="insight-tag" style="background:'+r.tagBg+';color:'+r.tagColor+'">'+r.tag+'</span>'
+      +'<span class="insight-time">'+r.timeCtx+'</span>'
+      +'<span class="insight-time" style="margin-top:2px">'+(r.priority==='high'?'⚠ Segera':r.priority==='med'?'· Disarankan':'· Opsional')+'</span>'
+      +'</div></div>';
+  }).join('');
 }
+
 
 function initCharts() {
   if (!window.ROOM_REGISTRY) { setTimeout(initCharts,500); return; }
@@ -2473,16 +2545,131 @@ function updateDashboard() {
   const acEl=document.getElementById('kpiACDelta');
   if(acEl){acEl.textContent=totalAC<10?'Beban rendah':totalAC<25?'Beban sedang':'Beban tinggi';acEl.className=`m-delta ${totalAC<10?'d-good':totalAC<25?'d-warn':'d-bad'}`;}
 
+
   const activeRooms=all.filter(r=>r.orang>0).sort((a,b)=>b.PMV-a.PMV);
-  setEl('activeRoomCount',`${activeRooms.length} ruang aktif`);
+  setEl('activeRoomCount', activeRooms.length+' ruang aktif');
   const gridEl=document.getElementById('activeRoomGrid');
-  if(gridEl) gridEl.innerHTML=activeRooms.length?activeRooms.map(r=>{
-    const st=pmvStatus(r.PMV);
-    const pc=r.PMV>1?'#b83232':r.PMV>0.5?'#c8922a':r.PMV<-0.5?'#1e5fa8':'#1a7a62';
-    return `<div class="room-mini ${st.cls}"><div class="rm-name">${r.gedung}-L${r.lantai} ${r.nama}</div>
-      <div class="rm-pmv" style="color:${pc}">${r.PMV>=0?'+':''}${r.PMV.toFixed(2)}</div>
-      <div class="rm-meta">${r.orang}/${r.kapasitas} org · AC ${r.acLoad.toFixed(1)} kW</div></div>`;
-  }).join(''):'<div style="color:var(--gray);font-size:12px;padding:8px">Tidak ada ruang aktif</div>';
+  if(!gridEl) return;
+
+  function pmvBarPct(pmv) { return Math.round(Math.min(100, Math.max(0, (pmv+2)/4*100))); }
+  function pmvFillColor(pmv) { return pmv>1?'#E24B4A':pmv>0.5?'#EF9F27':pmv<-0.5?'#378ADD':'#639922'; }
+  function pmvTextColor(pmv) { return pmv>1?'#A32D2D':pmv>0.5?'#BA7517':pmv<-0.5?'#185FA5':'#3B6D11'; }
+
+  // SVG icon strings
+  function iconThermo(col) {
+    return '<svg width="18" height="18" viewBox="0 0 18 18" fill="none">'
+      +'<rect x="7.5" y="2" width="3" height="9" rx="1.5" stroke="'+col+'" stroke-width="1.2"/>'
+      +'<circle cx="9" cy="13" r="2.8" stroke="'+col+'" stroke-width="1.2" fill="'+col+'" fill-opacity="0.15"/>'
+      +'<line x1="9" y1="6" x2="9" y2="11" stroke="'+col+'" stroke-width="1.4" stroke-linecap="round"/>'
+      +'</svg>';
+  }
+  function iconBlitz(col) {
+    return '<svg width="18" height="18" viewBox="0 0 18 18" fill="none">'
+      +'<path d="M10.5 2L5 10h5l-2.5 6L15 8h-5l.5-6z" stroke="'+col+'" stroke-width="1.2" stroke-linejoin="round" fill="'+col+'" fill-opacity="0.15"/>'
+      +'</svg>';
+  }
+  function iconPerson() {
+    return '<svg width="18" height="18" viewBox="0 0 18 18" fill="none">'
+      +'<circle cx="9" cy="6.5" r="2.5" stroke="#888580" stroke-width="1.2"/>'
+      +'<path d="M3.5 15c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="#888580" stroke-width="1.2" stroke-linecap="round"/>'
+      +'</svg>';
+  }
+
+  if(!activeRooms.length) {
+    gridEl.innerHTML='<div style="color:var(--gray);font-size:12px;padding:8px">Tidak ada ruang aktif</div>';
+  } else {
+    var cardIdx = 0;
+    gridEl.innerHTML = activeRooms.map(function(r) {
+      var st  = pmvStatus(r.PMV);
+      var pc  = pmvTextColor(r.PMV);
+      var fc  = pmvFillColor(r.PMV);
+      var pct = pmvBarPct(r.PMV);
+      var uid = 'rc-'+r.id.replace(/[^a-z0-9]/gi,'');
+      var ovr = window.ROOM_OVERRIDES && window.ROOM_OVERRIDES[r.id];
+      var ovrNote = ovr
+        ? '<div class="rc-override-note"><div class="rc-override-dot"></div>Override aktif: AC '+
+          (ovr.ACSetpoint||'—')+'°C'+(ovr.shadingAngle!==undefined?' · shading '+ovr.shadingAngle+'°':'')+
+          ' <span style="margin-left:auto;cursor:pointer;color:var(--red)" onclick="clearOverride(''+r.id+'')">× reset</span></div>'
+        : '';
+      var modeTarget = '±0.5';
+      var pmvCheck   = Math.abs(r.PMV)<=0.5 ? '<span style="color:#3B6D11">✓</span>' : '<span style="color:#A32D2D">✗</span>';
+
+      return '<div class="room-mini '+st.cls+'">'
+        // Top: icons
+        +'<div class="rc-top">'
+        +'<div class="rc-label">'+r.gedung+'-L'+r.lantai+' · '+r.nama+'</div>'
+        +'<div class="rc-icons">'
+        // Suhu — termometer
+        +'<div class="rc-icon">'+iconThermo(pc)
+        +'<div class="rc-icon-val" style="color:'+pc+'">'+r.tRuang.toFixed(1)+'°</div>'
+        +'<div class="rc-icon-lbl">suhu</div></div>'
+        +'<div class="rc-divider"></div>'
+        // Energi — blitz
+        +'<div class="rc-icon">'+iconBlitz(r.acLoad>2?'#EF9F27':r.acLoad>0.5?'#639922':'#888580')
+        +'<div class="rc-icon-val" style="color:'+(r.acLoad>2?'#BA7517':r.acLoad>0.5?'#3B6D11':'var(--gray)')+'">'+r.acLoad.toFixed(1)+'</div>'
+        +'<div class="rc-icon-lbl">kW AC</div></div>'
+        +'<div class="rc-divider"></div>'
+        // Orang
+        +'<div class="rc-icon">'+iconPerson()
+        +'<div class="rc-icon-val" style="color:var(--gray)">'+r.orang+'/'+r.kapasitas+'</div>'
+        +'<div class="rc-icon-lbl">orang</div></div>'
+        +'</div></div>'
+        // PMV row
+        +'<div class="rc-pmv">'
+        +'<div class="rc-pmv-val" style="color:'+pc+'">'+(r.PMV>=0?'+':'')+r.PMV.toFixed(2)+'</div>'
+        +'<div class="rc-pmv-bar-wrap">'
+        +'<div class="rc-pmv-bar"><div class="rc-pmv-fill" style="width:'+pct+'%;background:'+fc+'"></div></div>'
+        +'<div class="rc-pmv-range"><span>−2</span><span style="color:#3B6D11">0</span><span>+2</span></div>'
+        +'</div></div>'
+        // Chevron
+        +'<div class="rc-chevron" onclick="toggleRoomCard(\''+uid+'\')" id="chev-'+uid+'">▾ detail</div>'
+        // Expand
+        +'<div class="rc-expand" id="'+uid+'">'
+        // Breakdown penyebab
+        +'<div class="rc-expand-row"><span class="rc-expand-lbl">solar load</span>'
+        +'<span class="rc-expand-val" style="color:'+(r.dtSolar>1?'#A32D2D':r.dtSolar>0.3?'#BA7517':'var(--gray)')+'">+'+r.dtSolar.toFixed(1)+'°C</span></div>'
+        +'<div class="rc-expand-row"><span class="rc-expand-lbl">beban orang</span>'
+        +'<span class="rc-expand-val" style="color:'+(r.dtOrang>1?'#A32D2D':r.dtOrang>0.3?'#BA7517':'var(--gray)')+'">+'+r.dtOrang.toFixed(1)+'°C</span></div>'
+        // Mode vs aktual
+        +'<div style="margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border)">'
+        +'<div class="rc-expand-row"><span class="rc-expand-lbl">mode ('+getScenario().label+')</span>'
+        +'<span class="rc-expand-val" style="color:var(--gray)">±0.5</span></div>'
+        +'<div class="rc-expand-row"><span class="rc-expand-lbl">PMV aktual</span>'
+        +'<span class="rc-expand-val" style="color:'+pc+'">'+(r.PMV>=0?'+':'')+r.PMV.toFixed(2)+' '+pmvCheck+'</span></div>'
+        +'</div>'
+        // Override sliders
+        +'<div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)">'
+        +'<div style="font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:7px">Override ruang ini</div>'
+        // Setpoint AC slider
+        +'<div style="margin-bottom:8px">'
+        +'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px">'
+        +'<span>Setpoint AC</span><span id="sp-lbl-'+uid+'" style="font-family:var(--font-m);font-weight:500;color:var(--ink)">'+(ovr&&ovr.ACSetpoint!==undefined?ovr.ACSetpoint:getScenario().ACSetpoint)+'°C</span></div>'
+        +'<input type="range" min="20" max="28" step="0.5" value="'+(ovr&&ovr.ACSetpoint!==undefined?ovr.ACSetpoint:getScenario().ACSetpoint)+'" style="width:100%;accent-color:var(--gold)"'
+        +' oninput="previewOverride(\''+r.id+'\',\'sp\',parseFloat(this.value),\'sp-lbl-'+uid+'\',\'pvw-'+uid+'\')" />'
+        +'</div>'
+        // Shading slider — hanya untuk ruang berwindow
+        +(r.hasWindow
+          ? '<div style="margin-bottom:8px">'
+            +'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px">'
+            +'<span>Kemiringan shading</span><span id="sh-lbl-'+uid+'" style="font-family:var(--font-m);font-weight:500;color:var(--ink)">'+(ovr&&ovr.shadingAngle!==undefined?ovr.shadingAngle:90)+'°</span></div>'
+            +'<input type="range" min="0" max="90" step="5" value="'+(ovr&&ovr.shadingAngle!==undefined?ovr.shadingAngle:90)+'" style="width:100%;accent-color:#1e5fa8"'
+            +' oninput="previewOverride(\''+r.id+'\',\'sh\',parseInt(this.value),\'sh-lbl-'+uid+'\',\'pvw-'+uid+'\')" />'
+            +'<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--gray);opacity:.6"><span>0° tertutup</span><span>90° terbuka</span></div>'
+            +'</div>'
+          : '')
+        // Preview efek
+        +'<div id="pvw-'+uid+'" style="background:var(--surface);border-radius:var(--r);padding:6px 8px;font-size:10px;color:var(--gray);margin-bottom:7px;min-height:28px"></div>'
+        // Tombol terapkan / reset
+        +'<div style="display:flex;gap:6px">'
+        +'<button onclick="applyOverrideFromCard(\''+r.id+'\',\''+uid+'\')" style="flex:1;font-size:10px;padding:5px;border-radius:var(--r);border:1px solid var(--gold);background:rgba(200,146,42,0.1);color:var(--gold-dk);cursor:pointer;font-family:var(--font-b)">Terapkan</button>'
+        +(ovr ? '<button onclick="clearOverride(\''+r.id+'\')" style="font-size:10px;padding:5px 8px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--red-dk);cursor:pointer;font-family:var(--font-b)">× Reset</button>' : '')
+        +'</div>'
+        +'</div>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+
 
   // Update chart vertical lines
   [chartPMV,chartAC].forEach(ch=>{
@@ -2521,6 +2708,100 @@ const _origAP=window.applyPreset||function(){};
 window.applyPreset=function(b,k){_origAP(b,k);updateDashboard();};
 const _origSS=window.setSky||function(){};
 window.setSky=function(k,b,s){_origSS(k,b,s);updateDashboard();};
+
+
+// Room card toggle
+function toggleRoomCard(uid) {
+  var exp  = document.getElementById(uid);
+  var card = exp && exp.closest('.room-mini');
+  var chev = card && card.querySelector('.rc-chevron');
+  if (!exp) return;
+  var open = exp.classList.toggle('open');
+  if (chev) chev.textContent = open ? '▴ tutup' : '▾ detail';
+}
+
+// ROOM_OVERRIDES
+window.ROOM_OVERRIDES = window.ROOM_OVERRIDES || {};
+
+function clearOverride(roomId) {
+  delete window.ROOM_OVERRIDES[roomId];
+  updateDashboard();
+  updateModeBadges();
+}
+
+function applyOverride(roomId, overrideObj) {
+  window.ROOM_OVERRIDES[roomId] = Object.assign(window.ROOM_OVERRIDES[roomId]||{}, overrideObj);
+  updateDashboard();
+  updateModeBadges();
+}
+
+function applyOverrideFromCard(roomId, uid) {
+  var spInput = document.querySelector('#'+uid+' ~ div input[type=range]');
+  var allInputs = document.querySelectorAll('#'+uid+' input[type=range]');
+  var spVal = null, shVal = null;
+  allInputs.forEach(function(inp) {
+    if (parseFloat(inp.min) === 20) spVal = parseFloat(inp.value);
+    if (parseFloat(inp.max) === 90) shVal = parseInt(inp.value);
+  });
+  var ovr = {};
+  if (spVal !== null) ovr.ACSetpoint = spVal;
+  if (shVal !== null) ovr.shadingAngle = shVal;
+  window.ROOM_OVERRIDES[roomId] = ovr;
+  updateDashboard();
+  updateModeBadges();
+}
+
+function previewOverride(roomId, type, val, lblId, pvwId) {
+  var lblEl = document.getElementById(lblId);
+  var pvwEl = document.getElementById(pvwId);
+  if (lblEl) lblEl.textContent = type === 'sp' ? val+'°C' : val+'°';
+
+  if (!pvwEl || !window.ROOM_REGISTRY) return;
+  var reg = window.ROOM_REGISTRY[roomId];
+  if (!reg) return;
+
+  // Simulasi dengan nilai baru
+  var tempOverride = Object.assign({}, window.ROOM_OVERRIDES[roomId]||{});
+  if (type === 'sp') tempOverride.ACSetpoint  = val;
+  if (type === 'sh') tempOverride.shadingAngle = val;
+
+  // Simpan override sementara, hitung, kembalikan
+  var origOverride = window.ROOM_OVERRIDES[roomId];
+  window.ROOM_OVERRIDES[roomId] = tempOverride;
+  var newState = computeRoomState(reg, window.PARAM);
+  window.ROOM_OVERRIDES[roomId] = origOverride;
+
+  var curState = computeRoomState(reg, window.PARAM);
+  var dPMV  = newState.PMV - curState.PMV;
+  var dAC   = newState.acLoad - curState.acLoad;
+  var pmvNew = (newState.PMV>=0?'+':'')+newState.PMV.toFixed(2);
+  var pmvCol = newState.PMV>1?'#A32D2D':newState.PMV>0.5?'#BA7517':newState.PMV<-0.5?'#185FA5':'#3B6D11';
+  var acTxt  = dAC < -0.05 ? 'hemat '+Math.abs(dAC).toFixed(1)+' kW' : dAC > 0.05 ? 'tambah '+dAC.toFixed(1)+' kW' : 'AC sama';
+
+  pvwEl.innerHTML = 'PMV baru: <strong style="color:'+pmvCol+'">'+pmvNew+'</strong>'
+    + (Math.abs(dPMV)>0.05 ? ' ('+( dPMV<0?'':'+')+dPMV.toFixed(2)+')' : '')
+    + ' &nbsp;·&nbsp; '+acTxt;
+}
+
+function updateModeBadges() {
+  var n = Object.keys(window.ROOM_OVERRIDES).length;
+  ['hemat','moderat','nyaman'].forEach(function(k) {
+    var card = document.getElementById('modeCard-'+k);
+    if (!card) return;
+    var badge = card.querySelector('.mode-override-badge');
+    if (n > 0) {
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.className = 'mode-override-badge';
+        badge.style.cssText = 'font-size:9px;color:rgba(240,237,232,0.5);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)';
+        card.querySelector('.mode-card-specs').after(badge);
+      }
+      badge.textContent = n+' pengecualian aktif';
+    } else if (badge) {
+      badge.remove();
+    }
+  });
+}
 
 function waitAndInit() {
   if (typeof Chart === 'undefined') { setTimeout(waitAndInit, 200); return; }
