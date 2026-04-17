@@ -2050,12 +2050,13 @@ document.getElementById("scroll-zone").addEventListener("touchmove", (e) => {
    Mengubah perilaku AC di seluruh sistem
 ══════════════════════════════════════════ */
 const SCENARIOS = {
+  hemat: {
     label:       'Hemat Energi',
     ACSetpoint:  26.0,
-    ACmult:      0.60,   // AC lebih lemah/konservatif
+    ACmult:      0.60,
     preCool:     false,
-    idleThresh:  0.15,   // AC mati di bawah 15% okupansi
-    energyRel:   0.65,   // 65% dari baseline
+    idleThresh:  0.15,
+    energyRel:   0.65,
   },
   moderat: {
     label:       'Moderat',
@@ -2422,7 +2423,7 @@ function renderInsightRecs(recs) {
         +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
         +'<span style="font-size:10px;color:var(--gray);width:80px;flex-shrink:0">Setpoint AC</span>'
         +'<input type="range" min="20" max="28" step="0.5" value="'+currentAC+'" id="sl-ac-'+uid+'"'
-        +' style="flex:1;accent-color:#c8922a" oninput="previewOverride(''+roomId+'',''+uid+'')">'
+        +' style="flex:1;accent-color:#c8922a" oninput="rcPreview(this)" data-rid="'+roomId+'" data-uid="'+uid+'" data-type="sp">'
         +'<span id="out-ac-'+uid+'" style="font-size:11px;font-family:var(--font-m);font-weight:500;min-width:36px;text-align:right">'+currentAC+'°C</span>'
         +'</div>';
 
@@ -2430,7 +2431,7 @@ function renderInsightRecs(recs) {
         controls += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
           +'<span style="font-size:10px;color:var(--gray);width:80px;flex-shrink:0">Shading 0–90°</span>'
           +'<input type="range" min="0" max="90" step="5" value="'+currentShading+'" id="sl-sh-'+uid+'"'
-          +' style="flex:1;accent-color:#1e5fa8" oninput="previewOverride(''+roomId+'',''+uid+'')">'
+          +' style="flex:1;accent-color:#1e5fa8" oninput="rcPreview(this)" data-rid="'+roomId+'" data-uid="'+uid+'" data-type="sh">'
           +'<span id="out-sh-'+uid+'" style="font-size:11px;font-family:var(--font-m);font-weight:500;min-width:36px;text-align:right">'+currentShading+'°</span>'
           +'</div>';
       }
@@ -2439,8 +2440,8 @@ function renderInsightRecs(recs) {
       controls += '<div id="prev-'+uid+'" style="font-size:11px;color:var(--gray);margin-bottom:8px;min-height:16px"></div>'
         // Buttons
         +'<div style="display:flex;gap:6px">'
-        +'<button onclick="terapkanOverride(''+roomId+'',''+uid+'')" style="flex:1;font-size:11px;padding:5px 0;cursor:pointer;background:rgba(200,146,42,0.12);border:1px solid rgba(200,146,42,0.4);border-radius:6px;color:#7a5510;font-family:var(--font-b)">Terapkan</button>'
-        +(hasOvr?'<button onclick="clearOverride(''+roomId+'')" style="font-size:11px;padding:5px 10px;cursor:pointer;background:var(--surface);border:0.5px solid var(--border);border-radius:6px;color:var(--gray);font-family:var(--font-b)">Reset</button>':'')
+        +'<button onclick="rcApply(this)" data-rid="'+roomId+'" data-uid="'+uid+'"" style="flex:1;font-size:11px;padding:5px 0;cursor:pointer;background:rgba(200,146,42,0.12);border:1px solid rgba(200,146,42,0.4);border-radius:6px;color:#7a5510;font-family:var(--font-b)">Terapkan</button>'
+        +(hasOvr?'<button onclick="rcClear(this)" data-rid="'+roomId+'" style="font-size:11px;padding:5px 10px;cursor:pointer;background:var(--surface);border:0.5px solid var(--border);border-radius:6px;color:var(--gray);font-family:var(--font-b)">Reset</button>':'')
         +'</div></div>';
     }
 
@@ -2589,7 +2590,7 @@ function updateDashboard() {
       var ovrNote = ovr
         ? '<div class="rc-override-note"><div class="rc-override-dot"></div>Override aktif: AC '+
           (ovr.ACSetpoint||'—')+'°C'+(ovr.shadingAngle!==undefined?' · shading '+ovr.shadingAngle+'°':'')+
-          ' <span style="margin-left:auto;cursor:pointer;color:var(--red)" onclick="clearOverride(''+r.id+'')">× reset</span></div>'
+          ' <span style="margin-left:auto;cursor:pointer;color:var(--red)" onclick="rcClear(this)" data-rid="'+r.id+'">× reset</span></div>'
         : '';
       var modeTarget = '±0.5';
       var pmvCheck   = Math.abs(r.PMV)<=0.5 ? '<span style="color:#3B6D11">✓</span>' : '<span style="color:#A32D2D">✗</span>';
@@ -2662,7 +2663,7 @@ function updateDashboard() {
         // Tombol terapkan / reset
         +'<div style="display:flex;gap:6px">'
         +'<button onclick="applyOverrideFromCard(\''+r.id+'\',\''+uid+'\')" style="flex:1;font-size:10px;padding:5px;border-radius:var(--r);border:1px solid var(--gold);background:rgba(200,146,42,0.1);color:var(--gold-dk);cursor:pointer;font-family:var(--font-b)">Terapkan</button>'
-        +(ovr ? '<button onclick="clearOverride(\''+r.id+'\')" style="font-size:10px;padding:5px 8px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--red-dk);cursor:pointer;font-family:var(--font-b)">× Reset</button>' : '')
+        +(ovr ? '<button onclick="rcClear(this)" data-rid="'+r.id+'" style="font-size:10px;padding:5px 8px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--red-dk);cursor:pointer;font-family:var(--font-b)">× Reset</button>' : '')
         +'</div>'
         +'</div>'
         +'</div>'
@@ -2803,8 +2804,28 @@ function updateModeBadges() {
   });
 }
 
+function rcClear(el) {
+  clearOverride(el.dataset.rid);
+}
+
+// Global helpers untuk onclick dengan data-attribute
+function rcPreview(el) {
+  var rid=el.dataset.rid, uid=el.dataset.uid, type=el.dataset.type;
+  var val=type==='sp'?parseFloat(el.value):parseInt(el.value);
+  var lblId=type==='sp'?'out-ac-'+uid:'out-sh-'+uid;
+  previewOverride(rid, type, val, lblId, 'prev-'+uid);
+}
+function rcApply(el) {
+  var rid=el.dataset.rid, uid=el.dataset.uid;
+  var acEl=document.getElementById('sl-ac-'+uid);
+  var shEl=document.getElementById('sl-sh-'+uid);
+  var ovr={};
+  if(acEl) ovr.ACSetpoint=parseFloat(acEl.value);
+  if(shEl) ovr.shadingAngle=parseInt(shEl.value);
+  applyOverride(rid, ovr);
+}
+
 function waitAndInit() {
-  if (typeof Chart === 'undefined') { setTimeout(waitAndInit, 200); return; }
   if (!window.ROOM_REGISTRY || Object.keys(window.ROOM_REGISTRY).length === 0) { setTimeout(waitAndInit, 300); return; }
   if (!window.PARAM) { setTimeout(waitAndInit, 200); return; }
   if (!document.getElementById('cPMVHarian')) { setTimeout(waitAndInit, 200); return; }
