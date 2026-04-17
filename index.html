@@ -1146,8 +1146,10 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
 
   /* ── BUILD ROOMS ── */
   const allRooms = [];
+  window.allRooms = allRooms;
   // Room registry: id → metadata (untuk referensi fitur lanjutan)
   const ROOM_REGISTRY = {};
+  window.ROOM_REGISTRY = ROOM_REGISTRY;
 
   function buildRooms(b, groundM) {
     const idxMap = ROOM_INDICES[b.key];
@@ -1550,21 +1552,25 @@ function indexToLabel(v) { return v<.4?"Alert":v<.65?"Review":"OK"; }
 
 /* ── Update Cesium room colors ── */
 function updateCesiumColors() {
-  if (typeof ROOM_REGISTRY === 'undefined' || typeof allRooms === 'undefined') return;
-  allRooms.forEach(ent => {
+  if (typeof window.allRooms === 'undefined' || typeof window.ROOM_REGISTRY === 'undefined') return;
+  if (typeof Cesium === 'undefined') return;
+  window.allRooms.forEach(ent => {
     const rid = ent.properties?.__id?.getValue?.() ?? ent.properties?.__id;
     if (!rid) return;
-    const reg = ROOM_REGISTRY[rid];
+    const reg = window.ROOM_REGISTRY[rid];
     if (!reg) return;
-    // Jangan update yang sedang di-select/hover
-    if (ent === window._selEnt || ent === window._hovEnt) return;
     const adj = computeAdjustedIndex(reg, PARAM);
-    // Update material Cesium
-    const c = adj < .4
-      ? new Cesium.Color((184+20*(adj/.4))/255, (30+20*(adj/.4))/255, (30+20*(adj/.4))/255, .88)
-      : adj < .65
-        ? new Cesium.Color(.78,.55,.10,.85)
-        : new Cesium.Color(.08+.05*((adj-.65)/.35), .45+.10*((adj-.65)/.35), .36+.12*((adj-.65)/.35), .82);
+    let c;
+    if (adj < 0.4) {
+      const t = adj / 0.4;
+      c = new Cesium.Color(0.72 + 0.08*t, 0.12 + 0.08*t, 0.12 + 0.08*t, 0.88);
+    } else if (adj < 0.65) {
+      const t = (adj - 0.4) / 0.25;
+      c = new Cesium.Color(0.78 + 0.05*t, 0.55 + 0.05*t, 0.10 + 0.06*t, 0.85);
+    } else {
+      const t = (adj - 0.65) / 0.35;
+      c = new Cesium.Color(0.08 + 0.05*t, 0.45 + 0.10*t, 0.36 + 0.12*t, 0.82);
+    }
     ent.polygon.material = c;
   });
 }
