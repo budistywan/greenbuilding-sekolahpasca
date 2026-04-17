@@ -363,6 +363,26 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 .legend-sw { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 .legend-ln { width: 16px; height: 2px; flex-shrink: 0; }
 
+/* Mini card ruang aktif */
+.room-mini {
+  background: var(--white);
+  border: 0.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  position: relative; overflow: hidden;
+}
+.room-mini::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+}
+.room-mini.pmv-ok::before    { background: var(--teal); }
+.room-mini.pmv-warn::before  { background: var(--gold); }
+.room-mini.pmv-hot::before   { background: var(--red); }
+.room-mini.pmv-cold::before  { background: var(--blue); }
+.rm-name { font-size: 11px; font-weight: 500; color: var(--ink); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rm-pmv  { font-family: var(--font-m); font-size: 18px; font-weight: 500; line-height: 1; }
+.rm-meta { font-size: 10px; color: var(--gray); margin-top: 3px; }
+
 /* ── PARAMETER PANEL ── */
 #param-section { background: var(--ink2); border-top: 1px solid rgba(255,255,255,0.06); }
 
@@ -730,167 +750,170 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
 ══════════════════════════════════════════ -->
 <section id="dashboard">
 
+  <!-- LAYER 2: Snapshot Real-time -->
   <div class="dash-header">
-    <span class="dash-title">Dashboard operasional</span>
+    <span class="dash-title">Snapshot real-time</span>
     <div class="dash-rule"></div>
-    <span class="dash-tag">Data simulasi · April 2026</span>
+    <span class="dash-tag" id="snapshotTimeTag">Jam 09:00 WIB</span>
   </div>
-
   <div class="dash-body">
-
-    <!-- Metric strip -->
-    <div class="metric-strip">
-      <div class="m-card energy">
-        <div class="m-lbl">EUI Aktual</div>
-        <div class="m-val">187 <small>kWh/m²/th</small></div>
-        <div class="m-delta d-good">↓ −11% vs tahun lalu</div>
-        <div class="m-base">Baseline SNI: 200 · Target Gold: ≤170</div>
-      </div>
+    <div class="metric-strip" id="snapshotKPI">
       <div class="m-card thermal">
-        <div class="m-lbl">Thermal Comfort</div>
-        <div class="m-val">+0.3 <small>PMV</small></div>
-        <div class="m-delta d-good">Dalam rentang ±0.5 (IHC)</div>
-        <div class="m-base">Avg 24.8°C · RH 58%</div>
+        <div class="m-lbl">Avg PMV</div>
+        <div class="m-val" id="kpiAvgPMV">—</div>
+        <div class="m-delta" id="kpiPMVdelta">—</div>
+        <div class="m-base">Target: −0.5 s/d +0.5 (IHC)</div>
       </div>
-      <div class="m-card water">
-        <div class="m-lbl">Konsumsi Air</div>
-        <div class="m-val">8.4 <small>L/org/hari</small></div>
-        <div class="m-delta d-warn">↑ +3% vs target WAC</div>
-        <div class="m-base">Recycling 22% · target ≥30%</div>
+      <div class="m-card energy">
+        <div class="m-lbl">Ruang tidak nyaman</div>
+        <div class="m-val" id="kpiUncomfort">—</div>
+        <div class="m-delta" id="kpiUncomfortDelta">—</div>
+        <div class="m-base">PMV di luar ±0.5</div>
       </div>
       <div class="m-card occ">
-        <div class="m-lbl">Avg Occupancy</div>
-        <div class="m-val">68 <small>%</small></div>
-        <div class="m-delta d-bad">↓ −5% vs target utilisasi</div>
-        <div class="m-base">Peak: 09.00–11.00 WIB</div>
+        <div class="m-lbl">Total orang aktif</div>
+        <div class="m-val" id="kpiPeople">—</div>
+        <div class="m-delta" id="kpiPeopleDelta">—</div>
+        <div class="m-base">Dari jadwal kuliah</div>
+      </div>
+      <div class="m-card water">
+        <div class="m-lbl">Beban AC total</div>
+        <div class="m-val" id="kpiACLoad">—</div>
+        <div class="m-delta" id="kpiACDelta">—</div>
+        <div class="m-base">kW relatif saat ini</div>
       </div>
     </div>
 
-    <!-- Charts row 1 -->
+    <!-- Mini card grid ruang aktif -->
+    <div class="card">
+      <div class="c-title">
+        Ruang aktif saat ini
+        <span class="c-tag" id="activeRoomCount">—</span>
+      </div>
+      <div id="activeRoomGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px"></div>
+    </div>
+  </div>
+
+  <!-- LAYER 3: Analitik Harian -->
+  <div class="dash-header" style="margin-top:8px">
+    <span class="dash-title">Analitik harian</span>
+    <div class="dash-rule"></div>
+    <span class="dash-tag">Pola 00:00–24:00 · garis = jam aktif</span>
+  </div>
+  <div class="dash-body">
     <div class="two-col">
       <div class="card">
-        <div class="c-title">Energi vs Occupancy — bulanan <span class="c-tag">Okt 2025–Apr 2026</span></div>
+        <div class="c-title">PMV per tipe ruang — sepanjang hari</div>
         <div class="chart-wrap" style="height:200px">
-          <canvas id="cEnergy" role="img" aria-label="EUI dan occupancy bulanan">Data energi bulanan.</canvas>
+          <canvas id="cPMVHarian" role="img" aria-label="PMV harian per tipe ruang">PMV harian.</canvas>
         </div>
-        <div class="legend-row">
-          <span class="legend-item"><span class="legend-ln" style="background:#c8922a"></span>EUI kWh/m²</span>
-          <span class="legend-item"><span class="legend-ln" style="background:#1e5fa8;border-top:2px dashed #1e5fa8"></span>Occupancy %</span>
-          <span class="legend-item"><span class="legend-ln" style="background:#b83232"></span>Target 170</span>
-        </div>
+        <div class="legend-row" id="legendPMV"></div>
       </div>
       <div class="card">
-        <div class="c-title">Thermal comfort per lantai — PMV <span class="c-tag">Rata-rata April</span></div>
+        <div class="c-title">Beban AC total — sepanjang hari <span class="c-tag">kW relatif</span></div>
         <div class="chart-wrap" style="height:200px">
-          <canvas id="cThermal" role="img" aria-label="PMV per lantai">PMV per lantai.</canvas>
+          <canvas id="cACHarian" role="img" aria-label="Beban AC harian">Beban AC harian.</canvas>
         </div>
         <div class="legend-row">
-          <span class="legend-item"><span class="legend-sw" style="background:#1a7a62"></span>Gedung A</span>
-          <span class="legend-item"><span class="legend-sw" style="background:#7f77dd"></span>Gedung B</span>
-          <span class="legend-item"><span class="legend-ln" style="background:#b83232"></span>Batas ±0.5</span>
+          <span class="legend-item"><span class="legend-sw" style="background:#1e5fa8"></span>AC load kW</span>
+          <span class="legend-item"><span class="legend-sw" style="background:#b83232"></span>Peak load</span>
         </div>
       </div>
     </div>
-
-    <!-- Charts row 2 -->
-    <div class="three-col">
-      <div class="card">
-        <div class="c-title">Korelasi occupancy vs EUI <span class="c-tag">Titik merah = tidak efisien</span></div>
-        <div class="chart-wrap" style="height:220px">
-          <canvas id="cScatter" role="img" aria-label="Scatter occupancy vs EUI">Korelasi occupancy dan EUI.</canvas>
-        </div>
-        <div style="font-size:11px;color:var(--gray);margin-top:8px">Lantai di atas garis = boros relatif terhadap tingkat hunian</div>
+    <div class="card">
+      <div class="c-title">Kontributor beban panas per jam <span class="c-tag">Solar · Okupansi · Baseline</span></div>
+      <div class="chart-wrap" style="height:180px">
+        <canvas id="cStackedLoad" role="img" aria-label="Stacked beban panas">Kontributor beban.</canvas>
       </div>
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-sw" style="background:#c8922a"></span>Solar load</span>
+        <span class="legend-item"><span class="legend-sw" style="background:#b83232"></span>Beban orang</span>
+        <span class="legend-item"><span class="legend-sw" style="background:#888580"></span>Baseline</span>
+      </div>
+    </div>
+  </div>
 
+  <!-- LAYER 4: Perbandingan Ruang -->
+  <div class="dash-header" style="margin-top:8px">
+    <span class="dash-title">Perbandingan ruang</span>
+    <div class="dash-rule"></div>
+    <span class="dash-tag">Jam aktif · semua ruang</span>
+  </div>
+  <div class="dash-body">
+    <div class="two-col">
       <div class="card">
-        <div class="c-title">Skor Greenship GBCI</div>
+        <div class="c-title">PMV vs Beban AC <span class="c-tag">4 kuadran efisiensi</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px;font-size:9px">
+          <div style="background:#e0f4ef;border-radius:4px;padding:4px 6px;color:#0d4d3c">Q1 Efisien + Nyaman ✓</div>
+          <div style="background:#fceaea;border-radius:4px;padding:4px 6px;color:#6e1a1a">Q2 Boros + Panas ✗</div>
+          <div style="background:#e8f0fb;border-radius:4px;padding:4px 6px;color:#0d3566">Q3 Boros + Dingin ~</div>
+          <div style="background:#fdf3e0;border-radius:4px;padding:4px 6px;color:#7a5510">Q4 Hemat + Panas ~</div>
+        </div>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="cScatterPMV" role="img" aria-label="Scatter PMV vs AC load">PMV vs AC.</canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="c-title">
+          Ranking ruang
+          <span style="display:flex;gap:4px">
+            <button onclick="sortRoomTable('pmv')"   style="font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surface);cursor:pointer">PMV</button>
+            <button onclick="sortRoomTable('ac')"    style="font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surface);cursor:pointer">AC</button>
+            <button onclick="sortRoomTable('orang')" style="font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surface);cursor:pointer">Orang</button>
+          </span>
+        </div>
+        <div style="overflow-y:auto;max-height:260px">
+          <table class="ft" id="roomRankTable">
+            <thead><tr><th>Ruang</th><th>PMV</th><th>Orang</th><th>AC kW</th><th>—</th></tr></thead>
+            <tbody id="roomRankBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAYER 5: GBCI Scorecard -->
+  <div class="dash-header" style="margin-top:8px">
+    <span class="dash-title">GBCI Scorecard</span>
+    <div class="dash-rule"></div>
+    <span class="dash-tag">Dinamis dari kondisi real-time</span>
+  </div>
+  <div class="dash-body">
+    <div class="two-col">
+      <div class="card">
         <div class="score-row">
           <div class="score-circle">
-            <div class="score-num">61</div>
+            <div class="score-num" id="gbciTotal">61</div>
             <div class="score-den">/ 100</div>
           </div>
           <div class="score-info">
-            <div class="rating">Silver</div>
-            <div class="gap">Butuh <strong>+13 poin</strong> untuk Gold</div>
+            <div class="rating" id="gbciRating">Silver</div>
+            <div class="gap" id="gbciGap">Butuh <strong>+13 poin</strong> untuk Gold</div>
           </div>
         </div>
         <div class="cat-list">
-          <div class="cat-row"><span class="cat-nm">EEC</span><div class="cat-bg"><div class="cat-fill" style="width:62%;background:#c8922a"></div></div><span class="cat-pt">21/34</span></div>
-          <div class="cat-row"><span class="cat-nm">IHC</span><div class="cat-bg"><div class="cat-fill" style="width:70%;background:#1a7a62"></div></div><span class="cat-pt">14/20</span></div>
+          <div class="cat-row"><span class="cat-nm">EEC</span><div class="cat-bg"><div class="cat-fill" id="fillEEC" style="width:62%;background:#c8922a"></div></div><span class="cat-pt" id="ptEEC">21/34</span></div>
+          <div class="cat-row"><span class="cat-nm">IHC</span><div class="cat-bg"><div class="cat-fill" id="fillIHC" style="width:70%;background:#1a7a62"></div></div><span class="cat-pt" id="ptIHC">14/20</span></div>
           <div class="cat-row"><span class="cat-nm">WAC</span><div class="cat-bg"><div class="cat-fill" style="width:55%;background:#1e5fa8"></div></div><span class="cat-pt">11/20</span></div>
           <div class="cat-row"><span class="cat-nm">ASD</span><div class="cat-bg"><div class="cat-fill" style="width:80%;background:#7f77dd"></div></div><span class="cat-pt">8/10</span></div>
           <div class="cat-row"><span class="cat-nm">BEM</span><div class="cat-bg"><div class="cat-fill" style="width:44%;background:#888580"></div></div><span class="cat-pt">7/16</span></div>
         </div>
-        <div class="gap-box">Gap ke Gold: <strong>13 poin</strong> — prioritas EEC &amp; BEM</div>
+        <div class="gap-box" id="gbciGapBox">Gap ke Gold: <strong>13 poin</strong></div>
       </div>
-
       <div class="card">
-        <div class="c-title">Detail per lantai</div>
-        <table class="ft">
-          <thead><tr><th>Lantai</th><th>EUI</th><th>PMV</th><th>Occ</th><th>—</th></tr></thead>
-          <tbody>
-            <tr><td>A-5</td><td>172</td><td>+0.2</td><td>82%</td><td><span class="pill p-ok">OK</span></td></tr>
-            <tr><td>A-4</td><td>185</td><td>+0.4</td><td>74%</td><td><span class="pill p-ok">OK</span></td></tr>
-            <tr><td>A-3</td><td>201</td><td>+0.6</td><td>55%</td><td><span class="pill p-warn">Review</span></td></tr>
-            <tr><td>A-2</td><td>194</td><td>+0.3</td><td>70%</td><td><span class="pill p-ok">OK</span></td></tr>
-            <tr><td>A-1</td><td>210</td><td>+0.7</td><td>48%</td><td><span class="pill p-alrt">Alert</span></td></tr>
-            <tr><td>B-5</td><td>178</td><td>+0.1</td><td>79%</td><td><span class="pill p-ok">OK</span></td></tr>
-            <tr><td>B-4</td><td>188</td><td>+0.3</td><td>68%</td><td><span class="pill p-ok">OK</span></td></tr>
-            <tr><td>B-3</td><td>195</td><td>+0.5</td><td>60%</td><td><span class="pill p-warn">Review</span></td></tr>
-            <tr><td>B-2</td><td>204</td><td>+0.6</td><td>52%</td><td><span class="pill p-warn">Review</span></td></tr>
-            <tr><td>B-1</td><td>218</td><td>+0.8</td><td>44%</td><td><span class="pill p-alrt">Alert</span></td></tr>
-          </tbody>
-        </table>
+        <div class="c-title">Rekomendasi dinamis <span class="c-tag">dari kondisi jam aktif</span></div>
+        <ul class="rec-list" id="dynamicRec"></ul>
       </div>
     </div>
-
-    <!-- Recommendations -->
-    <div class="card">
-      <div class="c-title">Rekomendasi prioritas <span class="c-tag">Estimasi potensi +15 poin ke Gold</span></div>
-      <ul class="rec-list">
-        <li class="rec-item">
-          <div class="rec-dot" style="background:#c8922a"></div>
-          <span class="rec-cat" style="background:#fdf3e0;color:#7a5510">EEC</span>
-          <div>
-            <div class="rec-text">Turunkan EUI lantai A-1 &amp; B-1 ke &lt;190 kWh/m² melalui AC scheduling optimization berbasis data occupancy aktual</div>
-            <div class="rec-pt">Estimasi +6 poin · implementasi 2 bulan</div>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-dot" style="background:#888580"></div>
-          <span class="rec-cat" style="background:#f0ede8;color:#444441">BEM</span>
-          <div>
-            <div class="rec-text">Lengkapi commissioning log seluruh sistem MEP dan susun laporan green procurement — penghambat utama poin BEM</div>
-            <div class="rec-pt">Estimasi +5 poin · 1 bulan dokumentasi</div>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-dot" style="background:#1a7a62"></div>
-          <span class="rec-cat" style="background:#e0f4ef;color:#0d4d3c">IHC</span>
-          <div>
-            <div class="rec-text">PMV lantai A-1 &amp; B-1 melebihi +0.5 — tingkatkan ACH dan perbaiki distribusi udara segar ruang seminar kapasitas tinggi</div>
-            <div class="rec-pt">Estimasi +2 poin · balance VAV damper</div>
-          </div>
-        </li>
-        <li class="rec-item">
-          <div class="rec-dot" style="background:#1e5fa8"></div>
-          <span class="rec-cat" style="background:#e8f0fb;color:#0d3566">WAC</span>
-          <div>
-            <div class="rec-text">Pasang sub-meter air per lantai, tingkatkan sistem daur ulang greywater ke ≥30%</div>
-            <div class="rec-pt">Estimasi +2 poin · 3 bulan instalasi</div>
-          </div>
-        </li>
-      </ul>
-    </div>
-
   </div>
+
 </section>
 
 <!-- Footer -->
 <footer class="footer">
   <div><strong>Sekolah Pascasarjana Universitas Diponegoro</strong> · Green Building Intelligence</div>
   <div style="display:flex;gap:20px">
-    <span>GBCI Greenship v1.2 · <strong style="color:#c8922a">Silver</strong> → target Gold</span>
+    <span>GBCI Greenship v1.2 · <span id="footerRating" style="color:#c8922a;font-weight:500">Silver</span></span>
     <span>Data simulasi · April 2026</span>
   </div>
 </footer>
@@ -918,21 +941,35 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
   ];
 
   const FLOOR_LAYOUTS = [
-    [ {n:"Lobby Utama",u0:0,u1:.50,v0:0,v1:.55}, {n:"R. Administrasi",u0:.50,u1:1,v0:0,v1:.55},
-      {n:"Toilet Pria",u0:0,u1:.25,v0:.55,v1:1}, {n:"Toilet Wanita",u0:.25,u1:.50,v0:.55,v1:1},
-      {n:"R. Keamanan",u0:.50,u1:.75,v0:.55,v1:1}, {n:"Gudang",u0:.75,u1:1,v0:.55,v1:1} ],
-    [ {n:"R. Kuliah A201",u0:0,u1:.50,v0:0,v1:.60}, {n:"R. Kuliah A202",u0:.50,u1:1,v0:0,v1:.60},
-      {n:"Koridor",u0:0,u1:1,v0:.60,v1:.75}, {n:"Toilet Pria",u0:0,u1:.25,v0:.75,v1:1},
-      {n:"Toilet Wanita",u0:.25,u1:.50,v0:.75,v1:1}, {n:"R. Dosen",u0:.50,u1:1,v0:.75,v1:1} ],
-    [ {n:"R. Seminar",u0:0,u1:.65,v0:0,v1:.65}, {n:"R. Diskusi 301",u0:.65,u1:1,v0:0,v1:.50},
-      {n:"R. Diskusi 302",u0:.65,u1:1,v0:.50,v1:1}, {n:"Koridor",u0:0,u1:.65,v0:.65,v1:.78},
-      {n:"Toilet",u0:0,u1:.35,v0:.78,v1:1}, {n:"Pantry",u0:.35,u1:.65,v0:.78,v1:1} ],
-    [ {n:"R. Dosen A",u0:0,u1:.33,v0:0,v1:.65}, {n:"R. Dosen B",u0:.33,u1:.66,v0:0,v1:.65},
-      {n:"R. Dosen C",u0:.66,u1:1,v0:0,v1:.65}, {n:"Koridor",u0:0,u1:1,v0:.65,v1:.78},
-      {n:"R. Penelitian",u0:0,u1:.60,v0:.78,v1:1}, {n:"Toilet",u0:.60,u1:1,v0:.78,v1:1} ],
-    [ {n:"R. Dekan",u0:0,u1:.40,v0:0,v1:.55}, {n:"R. Wakil Dekan",u0:.40,u1:1,v0:0,v1:.55},
-      {n:"R. Rapat Besar",u0:0,u1:.65,v0:.55,v1:1}, {n:"Sekretariat",u0:.65,u1:1,v0:.55,v1:.80},
-      {n:"Toilet",u0:.65,u1:1,v0:.80,v1:1} ],
+    [ {n:"Lobby Utama",      tipe:"lobby",   kap:20, u0:0,   u1:.50, v0:0,   v1:.55},
+      {n:"R. Administrasi",  tipe:"admin",   kap:15, u0:.50, u1:1,   v0:0,   v1:.55},
+      {n:"Toilet Pria",      tipe:"toilet",  kap:5,  u0:0,   u1:.25, v0:.55, v1:1},
+      {n:"Toilet Wanita",    tipe:"toilet",  kap:5,  u0:.25, u1:.50, v0:.55, v1:1},
+      {n:"R. Keamanan",      tipe:"admin",   kap:4,  u0:.50, u1:.75, v0:.55, v1:1},
+      {n:"Gudang",           tipe:"gudang",  kap:2,  u0:.75, u1:1,   v0:.55, v1:1} ],
+    [ {n:"R. Kuliah A201",   tipe:"kuliah",  kap:40, u0:0,   u1:.50, v0:0,   v1:.60},
+      {n:"R. Kuliah A202",   tipe:"kuliah",  kap:40, u0:.50, u1:1,   v0:0,   v1:.60},
+      {n:"Koridor",          tipe:"koridor", kap:30, u0:0,   u1:1,   v0:.60, v1:.75},
+      {n:"Toilet Pria",      tipe:"toilet",  kap:5,  u0:0,   u1:.25, v0:.75, v1:1},
+      {n:"Toilet Wanita",    tipe:"toilet",  kap:5,  u0:.25, u1:.50, v0:.75, v1:1},
+      {n:"R. Dosen",         tipe:"dosen",   kap:6,  u0:.50, u1:1,   v0:.75, v1:1} ],
+    [ {n:"R. Seminar",       tipe:"seminar", kap:60, u0:0,   u1:.65, v0:0,   v1:.65},
+      {n:"R. Diskusi 301",   tipe:"kuliah",  kap:20, u0:.65, u1:1,   v0:0,   v1:.50},
+      {n:"R. Diskusi 302",   tipe:"kuliah",  kap:20, u0:.65, u1:1,   v0:.50, v1:1},
+      {n:"Koridor",          tipe:"koridor", kap:25, u0:0,   u1:.65, v0:.65, v1:.78},
+      {n:"Toilet",           tipe:"toilet",  kap:5,  u0:0,   u1:.35, v0:.78, v1:1},
+      {n:"Pantry",           tipe:"pantry",  kap:8,  u0:.35, u1:.65, v0:.78, v1:1} ],
+    [ {n:"R. Dosen A",       tipe:"dosen",   kap:8,  u0:0,   u1:.33, v0:0,   v1:.65},
+      {n:"R. Dosen B",       tipe:"dosen",   kap:8,  u0:.33, u1:.66, v0:0,   v1:.65},
+      {n:"R. Dosen C",       tipe:"dosen",   kap:8,  u0:.66, u1:1,   v0:0,   v1:.65},
+      {n:"Koridor",          tipe:"koridor", kap:20, u0:0,   u1:1,   v0:.65, v1:.78},
+      {n:"R. Penelitian",    tipe:"riset",   kap:12, u0:0,   u1:.60, v0:.78, v1:1},
+      {n:"Toilet",           tipe:"toilet",  kap:5,  u0:.60, u1:1,   v0:.78, v1:1} ],
+    [ {n:"R. Dekan",         tipe:"pimpinan",kap:5,  u0:0,   u1:.40, v0:0,   v1:.55},
+      {n:"R. Wakil Dekan",   tipe:"pimpinan",kap:4,  u0:.40, u1:1,   v0:0,   v1:.55},
+      {n:"R. Rapat Besar",   tipe:"rapat",   kap:30, u0:0,   u1:.65, v0:.55, v1:1},
+      {n:"Sekretariat",      tipe:"admin",   kap:6,  u0:.65, u1:1,   v0:.55, v1:.80},
+      {n:"Toilet",           tipe:"toilet",  kap:5,  u0:.65, u1:1,   v0:.80, v1:1} ],
   ];
 
   const ROOM_INDICES = {
@@ -1180,13 +1217,14 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
           lantai:   fl+1,
           ruangIdx: ri,
           nama:     rm.n,
+          tipe:     rm.tipe || "kuliah",
+          kapasitas:rm.kap  || 10,
           index:    idx,
           status:   indexToLabel(idx),
           bottomM:  bot,
           topM:     top,
           u0:rm.u0, u1:rm.u1, v0:rm.v0, v1:rm.v1,
           subFootprint: sfp,
-          // Orientasi & jendela
           hasWindow:     orientation.hasWindow,
           outerEdges:    orientation.outerEdges,
           windowFacing:  orientation.windowFacing,
@@ -1531,24 +1569,65 @@ function computeAdjustedIndex(reg, param) {
   const base   = reg.index;
   const active = activeSolarDirections(param.hourMin);
   const mult   = SKY_MULT[param.sky];
+  const h      = param.hourMin / 60;
+
+  // Intensitas matahari sepanjang hari (0 malam, 1 puncak siang)
+  let solarIntensity = 0;
+  if (h >= 5.8 && h <= 17.87) {
+    solarIntensity = Math.sin((h - 5.8) * Math.PI / 12.07);
+  }
+  solarIntensity *= mult; // dikurangi kondisi langit
 
   // Solar penalty: ruang dengan jendela menghadap arah matahari aktif
   let solarPenalty = 0;
+  let solarBonus   = 0;
+
   if (reg.hasWindow && active.length > 0) {
-    const hit = (reg.windowFacing||[]).filter(f => active.includes(f)).length;
-    if (hit > 0) solarPenalty = 0.12 * mult * (hit / reg.windowFacing.length);
+    const facing    = reg.windowFacing || [];
+    const hitCount  = facing.filter(f => active.includes(f)).length;
+    const missCount = facing.length - hitCount;
+
+    if (hitCount > 0) {
+      // Ruang terkena langsung → penalty proporsional intensitas matahari
+      // Max penalty 0.35 saat puncak siang + langit cerah + jendela menghadap tepat
+      solarPenalty = 0.35 * solarIntensity * (hitCount / facing.length);
+    }
+    if (missCount > 0 && facing.length > 0) {
+      // Sisi lain ruang yang tidak terkena → sedikit bonus (teduh relatif)
+      solarBonus = 0.04 * solarIntensity * (missCount / facing.length);
+    }
+  } else if (!reg.hasWindow) {
+    // Ruang interior → tidak terpengaruh matahari sama sekali
+    solarPenalty = 0;
+    solarBonus   = 0;
+  } else {
+    // Punya jendela tapi arah matahari belum aktif (malam/tidak ada matahari)
+    // Sedikit bonus karena tidak ada heat gain
+    solarBonus = 0.03 * (1 - solarIntensity);
   }
 
   // Temp penalty: di atas 28°C mulai membebani
-  const tempPenalty = param.temp > 28 ? Math.min(0.15, (param.temp - 28) * 0.012) : 0;
+  const tempPenalty = param.temp > 28
+    ? Math.min(0.12, (param.temp - 28) * 0.012)
+    : 0;
 
   // Humid penalty: di atas 75% RH
-  const humidPenalty = param.humid > 75 ? Math.min(0.10, (param.humid - 75) * 0.004) : 0;
+  const humidPenalty = param.humid > 75
+    ? Math.min(0.08, (param.humid - 75) * 0.004)
+    : 0;
 
   // Wind bonus: konveksi fasad untuk ruang yang punya jendela
-  const windBonus = reg.hasWindow && param.wind >= 2 ? Math.min(0.06, (param.wind - 2) * 0.015) : 0;
+  const windBonus = reg.hasWindow && param.wind >= 2
+    ? Math.min(0.05, (param.wind - 2) * 0.012)
+    : 0;
 
-  const adjusted = base - solarPenalty - tempPenalty - humidPenalty + windBonus;
+  const adjusted = base
+    - solarPenalty
+    - tempPenalty
+    - humidPenalty
+    + solarBonus
+    + windBonus;
+
   return Math.max(0.05, Math.min(1.0, adjusted));
 }
 
@@ -1577,7 +1656,7 @@ function updateCesiumScene() {
 
   // 2. Fog density → representasi kelembaban & kondisi langit
   const skyMult = SKY_MULT[PARAM.sky];
-  const humidFactor = Math.max(0, (PARAM.humid - 60) / 40); // 0 saat RH=60, 1 saat RH=100
+  const humidFactor = Math.max(0, (PARAM.humid - 60) / 40);
   v.scene.fog.enabled = true;
   v.scene.fog.density = 0.0001 + (1 - skyMult) * 0.0008 + humidFactor * 0.0003;
 
@@ -1589,7 +1668,10 @@ function updateCesiumScene() {
 
   // 4. Globe lighting → terang/redup sesuai kondisi langit
   v.scene.globe.enableLighting = true;
-  v.scene.globe.atmosphereLightIntensity = 10.0 * skyMult;
+  try { v.scene.globe.atmosphereLightIntensity = 10.0 * skyMult; } catch(e) {}
+
+  // 5. Update warna ruang setelah scene update
+  updateCesiumColors();
 }
 
 /* ── Update Cesium room colors ── */
@@ -1738,6 +1820,271 @@ document.getElementById("scroll-zone").addEventListener("touchmove", (e) => {
   window.scrollBy({ top: dy, behavior: "auto" });
   _touchStartY = e.touches[0].clientY;
 }, { passive: true });
+</script>
+
+<!-- ══════════════════════════════════════════
+     DASHBOARD ENGINE
+══════════════════════════════════════════ -->
+<script>
+const JADWAL = {
+  kuliah:   [0,0,0,0,0,0,0,0.3,0.85,0.95,0.90,0.50,0.80,0.95,0.85,0.60,0.20,0.05,0,0,0,0,0,0],
+  seminar:  [0,0,0,0,0,0,0,0,0.40,0.85,0.90,0.50,0.60,0.85,0.80,0.40,0.10,0,0,0,0,0,0,0],
+  dosen:    [0,0,0,0,0,0,0,0.2,0.65,0.80,0.85,0.70,0.60,0.80,0.85,0.70,0.40,0.10,0,0,0,0,0,0],
+  pimpinan: [0,0,0,0,0,0,0,0.1,0.60,0.80,0.90,0.70,0.65,0.80,0.85,0.70,0.40,0.10,0,0,0,0,0,0],
+  rapat:    [0,0,0,0,0,0,0,0,0.20,0.70,0.90,0.40,0.60,0.80,0.70,0.30,0.10,0,0,0,0,0,0,0],
+  admin:    [0,0,0,0,0,0,0,0.3,0.90,0.95,0.95,0.85,0.80,0.90,0.90,0.80,0.50,0.05,0,0,0,0,0,0],
+  riset:    [0,0,0,0,0,0,0,0.1,0.50,0.70,0.80,0.60,0.50,0.70,0.75,0.60,0.30,0.10,0,0,0,0,0,0],
+  lobby:    [0,0,0,0,0,0,0,0.2,0.50,0.45,0.40,0.35,0.40,0.45,0.40,0.35,0.25,0.10,0,0,0,0,0,0],
+  koridor:  [0,0,0,0,0,0,0,0.1,0.40,0.35,0.30,0.25,0.35,0.35,0.30,0.25,0.15,0.05,0,0,0,0,0,0],
+  toilet:   [0,0,0,0,0,0,0,0.1,0.20,0.20,0.20,0.20,0.30,0.20,0.20,0.15,0.10,0.05,0,0,0,0,0,0],
+  pantry:   [0,0,0,0,0,0,0,0,0.10,0.15,0.20,0.60,0.20,0.15,0.20,0.15,0.05,0,0,0,0,0,0,0],
+  gudang:   [0,0,0,0,0,0,0,0.1,0.20,0.20,0.20,0.20,0.20,0.20,0.20,0.20,0.10,0,0,0,0,0,0,0],
+};
+
+function computeRoomState(reg, param) {
+  const h = Math.floor(param.hourMin / 60);
+  const jadwal = JADWAL[reg.tipe] || JADWAL.kuliah;
+  const okkPct = jadwal[h] || 0;
+  const orang  = Math.round(okkPct * (reg.kapasitas || 10));
+  const active = activeSolarDirections(param.hourMin);
+  const mult   = SKY_MULT[param.sky];
+  let si = 0;
+  if (h >= 5.8 && h <= 17.87) si = Math.sin((h-5.8)*Math.PI/12.07) * mult;
+  let dtSolar = 0;
+  if (reg.hasWindow && active.length>0) {
+    const hit = (reg.windowFacing||[]).filter(f=>active.includes(f)).length;
+    if (hit>0) dtSolar = 4.0 * si * (hit / (reg.windowFacing.length||1));
+  }
+  const dtOrang = orang * 0.06;
+  const tOutEff = Math.max(0,(param.temp-28)*0.3);
+  const tBeban  = 26.0 + dtSolar + dtOrang + tOutEff;
+  const ACSetpoint = 24.0;
+  const tRuang = tBeban > ACSetpoint ? ACSetpoint + (tBeban-ACSetpoint)*0.15 : tBeban;
+  const acLoad = tBeban > ACSetpoint ? (tBeban-ACSetpoint)*0.4*((reg.kapasitas||10)/20) : 0;
+  const PMV    = (tRuang - 24.0) * 0.3;
+  return { PMV:+PMV.toFixed(2), tRuang:+tRuang.toFixed(1), orang, okkPct, acLoad:+acLoad.toFixed(2), dtSolar:+dtSolar.toFixed(2), dtOrang:+dtOrang.toFixed(2) };
+}
+
+function pmvToCesiumColor(pmv) {
+  if (typeof Cesium==='undefined') return null;
+  if (pmv<-1.0) return new Cesium.Color(0.10,0.28,0.65,0.88);
+  if (pmv<-0.5) return new Cesium.Color(0.30,0.55,0.85,0.85);
+  if (pmv<=0.5) { const t=(pmv+0.5)/1.0; return new Cesium.Color(0.08+0.05*t,0.48-0.06*t,0.38-0.10*t,0.82); }
+  if (pmv<=1.0) { const t=(pmv-0.5)/0.5; return new Cesium.Color(0.55+0.25*t,0.45-0.10*t,0.10,0.85); }
+  if (pmv<=2.0) { const t=(pmv-1.0)/1.0; return new Cesium.Color(0.72+0.08*t,0.18-0.06*t,0.08,0.88); }
+  return new Cesium.Color(0.80,0.10,0.08,0.90);
+}
+
+function pmvStatus(pmv) {
+  if (pmv<-1.0) return {label:"Terlalu dingin",cls:"pmv-cold"};
+  if (pmv<-0.5) return {label:"Sejuk",cls:"pmv-cold"};
+  if (pmv<=0.5) return {label:"Nyaman",cls:"pmv-ok"};
+  if (pmv<=1.0) return {label:"Hangat",cls:"pmv-warn"};
+  return {label:"Panas",cls:"pmv-hot"};
+}
+
+function computeAllRoomStates() {
+  const states = {};
+  if (!window.ROOM_REGISTRY) return states;
+  Object.values(window.ROOM_REGISTRY).forEach(reg => {
+    states[reg.id] = { ...reg, ...computeRoomState(reg, PARAM) };
+  });
+  return states;
+}
+
+function updateCesiumColorsPMV(states) {
+  if (!window.allRooms || typeof Cesium==='undefined') return;
+  window.allRooms.forEach(ent => {
+    const rid = ent.properties?.__id?.getValue?.() ?? ent.properties?.__id;
+    if (!rid || !states[rid]) return;
+    const c = pmvToCesiumColor(states[rid].PMV);
+    if (c) ent.polygon.material = c;
+  });
+}
+
+let chartPMV=null, chartAC=null, chartStacked=null, chartScatterPMV=null;
+const TIPE_CHART = ['kuliah','seminar','dosen','rapat'];
+const TIPE_COLORS = {kuliah:'#c8922a',seminar:'#7f77dd',dosen:'#1a7a62',rapat:'#1e5fa8'};
+let _sortKey='pmv', _roomStatesCache={};
+
+function sortRoomTable(key) { _sortKey=key; renderRoomTable(_roomStatesCache); }
+
+function renderRoomTable(states) {
+  const sorted = Object.values(states).sort((a,b)=>
+    _sortKey==='pmv'?b.PMV-a.PMV:_sortKey==='ac'?b.acLoad-a.acLoad:b.orang-a.orang);
+  const body = document.getElementById('roomRankBody');
+  if (!body) return;
+  body.innerHTML = sorted.map(r=>{
+    const st=pmvStatus(r.PMV);
+    const pc=st.cls==='pmv-ok'?'p-ok':st.cls==='pmv-warn'?'p-warn':'p-alrt';
+    return `<tr><td style="font-size:11px">${r.gedung}-L${r.lantai} ${r.nama}</td>
+      <td>${r.PMV>=0?'+':''}${r.PMV.toFixed(2)}</td><td>${r.orang}</td>
+      <td>${r.acLoad.toFixed(1)}</td><td><span class="pill ${pc}">${st.label}</span></td></tr>`;
+  }).join('');
+}
+
+function updateGBCI(states) {
+  const all = Object.values(states); if (!all.length) return;
+  const ihcPct = all.filter(r=>Math.abs(r.PMV)<=0.5).length/all.length;
+  const ihcPts = Math.round(ihcPct*20);
+  const totalAC = all.reduce((s,r)=>s+r.acLoad,0);
+  const eecPts  = Math.round(Math.max(10, 34*(1-totalAC/(all.length*2.5))));
+  const total   = eecPts+ihcPts+11+8+7;
+  const rating  = total>=74?'Gold':total>=53?'Silver':total>=35?'Bronze':'Certifying';
+  const gap     = Math.max(0,74-total);
+  document.getElementById('gbciTotal').textContent = total;
+  document.getElementById('gbciRating').textContent = rating;
+  document.getElementById('gbciRating').style.color = rating==='Gold'?'#c8922a':'#888580';
+  document.getElementById('gbciGap').innerHTML = gap>0?`Butuh <strong>+${gap} poin</strong> untuk Gold`:'<strong>Target Gold tercapai!</strong>';
+  document.getElementById('gbciGapBox').innerHTML = gap>0?`Gap ke Gold: <strong>${gap} poin</strong>`:'<strong>🏆 Gold tercapai!</strong>';
+  document.getElementById('footerRating').textContent = rating;
+  document.getElementById('fillEEC').style.width=(eecPts/34*100)+'%';
+  document.getElementById('ptEEC').textContent=eecPts+'/34';
+  document.getElementById('fillIHC').style.width=(ihcPts/20*100)+'%';
+  document.getElementById('ptIHC').textContent=ihcPts+'/20';
+  const hotRooms  = all.filter(r=>r.PMV>1.0).sort((a,b)=>b.PMV-a.PMV).slice(0,3);
+  const borosRooms= all.filter(r=>r.acLoad>1.5).sort((a,b)=>b.acLoad-a.acLoad).slice(0,2);
+  const recEl = document.getElementById('dynamicRec'); if (!recEl) return;
+  let html='';
+  if (hotRooms.length) html+=`<li class="rec-item"><div class="rec-dot" style="background:#b83232"></div>
+    <span class="rec-cat" style="background:#fceaea;color:#6e1a1a">IHC</span>
+    <div><div class="rec-text">${hotRooms.map(r=>`${r.gedung}-L${r.lantai} ${r.nama} (PMV ${r.PMV>=0?'+':''}${r.PMV.toFixed(2)})`).join(', ')}</div>
+    <div class="rec-pt">Tingkatkan ACH atau periksa kapasitas AC</div></div></li>`;
+  if (borosRooms.length) html+=`<li class="rec-item"><div class="rec-dot" style="background:#c8922a"></div>
+    <span class="rec-cat" style="background:#fdf3e0;color:#7a5510">EEC</span>
+    <div><div class="rec-text">${borosRooms.map(r=>`${r.gedung}-L${r.lantai} ${r.nama} (${r.acLoad.toFixed(1)} kW)`).join(', ')} — beban AC tinggi</div>
+    <div class="rec-pt">Pertimbangkan AC scheduling saat okupansi rendah</div></div></li>`;
+  html+=`<li class="rec-item"><div class="rec-dot" style="background:#888580"></div>
+    <span class="rec-cat" style="background:#f0ede8;color:#444441">BEM</span>
+    <div><div class="rec-text">Commissioning log &amp; green procurement belum lengkap</div>
+    <div class="rec-pt">Estimasi +5 poin · 1 bulan dokumentasi</div></div></li>`;
+  recEl.innerHTML = html;
+}
+
+function initCharts() {
+  if (!window.ROOM_REGISTRY) { setTimeout(initCharts,500); return; }
+  const hours = Array.from({length:24},(_,i)=>i);
+  const labels = hours.map(h=>String(h).padStart(2,'0')+':00');
+  const tick={family:"'DM Mono',monospace",size:10}, tickC='#888580', grid='rgba(17,24,39,0.06)';
+  const curH = Math.floor(PARAM.hourMin/60);
+  const vertLine = h => ({label:'Jam aktif',data:hours.map((_,i)=>i===h?99:null),type:'line',
+    borderColor:'#c8922a',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false});
+
+  const pmvDatasets = TIPE_CHART.map(t=>({
+    label:t,data:hours.map(h=>{
+      const fp={...PARAM,hourMin:h*60};
+      const rooms=Object.values(window.ROOM_REGISTRY).filter(r=>r.tipe===t).slice(0,4);
+      if (!rooms.length) return 0;
+      return +(rooms.reduce((s,r)=>s+computeRoomState({...r},fp).PMV,0)/rooms.length).toFixed(2);
+    }),borderColor:TIPE_COLORS[t],borderWidth:2,pointRadius:0,tension:.4,fill:false,
+  }));
+  pmvDatasets.push(vertLine(curH));
+  pmvDatasets.push({label:'+0.5',data:hours.map(()=>0.5),type:'line',borderColor:'#b83232',borderWidth:1,borderDash:[5,3],pointRadius:0,fill:false});
+  pmvDatasets.push({label:'-0.5',data:hours.map(()=>-0.5),type:'line',borderColor:'#1e5fa8',borderWidth:1,borderDash:[5,3],pointRadius:0,fill:false});
+  chartPMV = new Chart(document.getElementById('cPMVHarian'),{type:'line',data:{labels,datasets:pmvDatasets},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{min:-1.5,max:2.5,ticks:{font:tick,color:tickC,callback:v=>(v>=0?'+':'')+v.toFixed(1)},grid:{color:grid}},
+        x:{ticks:{font:tick,color:tickC,maxTicksLimit:12},grid:{color:grid}}}}});
+
+  const legDiv=document.getElementById('legendPMV');
+  if (legDiv) TIPE_CHART.forEach(t=>{legDiv.innerHTML+=`<span class="legend-item"><span class="legend-sw" style="background:${TIPE_COLORS[t]}"></span>${t}</span>`;});
+
+  const acByHour = hours.map(h=>{
+    const fp={...PARAM,hourMin:h*60};
+    return +Object.values(window.ROOM_REGISTRY).reduce((s,r)=>s+computeRoomState(r,fp).acLoad,0).toFixed(1);
+  });
+  chartAC = new Chart(document.getElementById('cACHarian'),{type:'line',
+    data:{labels,datasets:[{label:'AC kW',data:acByHour,borderColor:'#1e5fa8',backgroundColor:'rgba(30,95,168,0.08)',borderWidth:2,pointRadius:0,tension:.4,fill:true},vertLine(curH)]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{min:0,ticks:{font:tick,color:tickC,callback:v=>v+' kW'},grid:{color:grid}},x:{ticks:{font:tick,color:tickC,maxTicksLimit:12},grid:{color:grid}}}}});
+
+  const solarByHour=hours.map(h=>{const fp={...PARAM,hourMin:h*60};const n=Object.keys(window.ROOM_REGISTRY).length;return +(Object.values(window.ROOM_REGISTRY).reduce((s,r)=>s+computeRoomState(r,fp).dtSolar,0)/Math.max(1,n)).toFixed(2);});
+  const orangByHour=hours.map(h=>{const fp={...PARAM,hourMin:h*60};const n=Object.keys(window.ROOM_REGISTRY).length;return +(Object.values(window.ROOM_REGISTRY).reduce((s,r)=>s+computeRoomState(r,fp).dtOrang,0)/Math.max(1,n)).toFixed(2);});
+  chartStacked = new Chart(document.getElementById('cStackedLoad'),{type:'bar',
+    data:{labels,datasets:[{label:'Solar',data:solarByHour,backgroundColor:'#c8922a',stack:'s'},{label:'Orang',data:orangByHour,backgroundColor:'#b83232',stack:'s'},{label:'Baseline',data:hours.map(()=>2),backgroundColor:'#b4b2a9',stack:'s'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{stacked:true,ticks:{font:tick,color:tickC,callback:v=>'+'+v+'°C'},grid:{color:grid}},x:{stacked:true,ticks:{font:tick,color:tickC,maxTicksLimit:12},grid:{color:grid}}}}});
+
+  chartScatterPMV = new Chart(document.getElementById('cScatterPMV'),{type:'scatter',data:{datasets:[]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.raw.id}: PMV ${ctx.raw.y>=0?'+':''}${ctx.raw.y.toFixed(2)} · AC ${ctx.raw.x.toFixed(1)} kW`}}},
+      scales:{x:{min:0,title:{display:true,text:'AC Load (kW)',font:tick,color:tickC},ticks:{font:tick,color:tickC},grid:{color:grid}},
+        y:{min:-1.5,max:2.5,title:{display:true,text:'PMV',font:tick,color:tickC},ticks:{font:tick,color:tickC,callback:v=>(v>=0?'+':'')+v.toFixed(1)},grid:{color:grid}}}}});
+
+  updateDashboard();
+}
+
+function updateDashboard() {
+  if (!window.ROOM_REGISTRY) return;
+  const states = computeAllRoomStates();
+  _roomStatesCache = states;
+  const all = Object.values(states);
+  const h=Math.floor(PARAM.hourMin/60), mm=String(PARAM.hourMin%60).padStart(2,'0'), hh=String(h).padStart(2,'0');
+
+  updateCesiumColorsPMV(states);
+
+  const avgPMV = all.reduce((s,r)=>s+r.PMV,0)/Math.max(1,all.length);
+  const uncomfort = all.filter(r=>Math.abs(r.PMV)>0.5).length;
+  const totalPeople = all.reduce((s,r)=>s+r.orang,0);
+  const totalAC = all.reduce((s,r)=>s+r.acLoad,0);
+
+  const setEl=(id,val)=>{const e=document.getElementById(id);if(e)e.innerHTML=val;};
+  setEl('snapshotTimeTag',`Jam ${hh}:${mm} WIB`);
+  setEl('kpiAvgPMV',`${avgPMV>=0?'+':''}${avgPMV.toFixed(2)} <small>PMV</small>`);
+  const pmvEl=document.getElementById('kpiPMVdelta');
+  if(pmvEl){pmvEl.textContent=Math.abs(avgPMV)<=0.5?'✓ Dalam rentang IHC':'⚠ Di luar rentang IHC';pmvEl.className=`m-delta ${Math.abs(avgPMV)<=0.5?'d-good':'d-bad'}`;}
+  setEl('kpiUncomfort',`${uncomfort} <small>ruang</small>`);
+  const ucEl=document.getElementById('kpiUncomfortDelta');
+  if(ucEl){ucEl.textContent=uncomfort===0?'Semua nyaman':`${Math.round(uncomfort/all.length*100)}% dari total`;ucEl.className=`m-delta ${uncomfort===0?'d-good':uncomfort<5?'d-warn':'d-bad'}`;}
+  setEl('kpiPeople',`${totalPeople} <small>orang</small>`);
+  const ppEl=document.getElementById('kpiPeopleDelta');
+  if(ppEl){ppEl.textContent=totalPeople>0?`${all.filter(r=>r.orang>0).length} ruang aktif`:'Gedung kosong';ppEl.className=`m-delta ${totalPeople>0?'d-good':'d-warn'}`;}
+  setEl('kpiACLoad',`${totalAC.toFixed(1)} <small>kW</small>`);
+  const acEl=document.getElementById('kpiACDelta');
+  if(acEl){acEl.textContent=totalAC<10?'Beban rendah':totalAC<25?'Beban sedang':'Beban tinggi';acEl.className=`m-delta ${totalAC<10?'d-good':totalAC<25?'d-warn':'d-bad'}`;}
+
+  const activeRooms=all.filter(r=>r.orang>0).sort((a,b)=>b.PMV-a.PMV);
+  setEl('activeRoomCount',`${activeRooms.length} ruang aktif`);
+  const gridEl=document.getElementById('activeRoomGrid');
+  if(gridEl) gridEl.innerHTML=activeRooms.length?activeRooms.map(r=>{
+    const st=pmvStatus(r.PMV);
+    const pc=r.PMV>1?'#b83232':r.PMV>0.5?'#c8922a':r.PMV<-0.5?'#1e5fa8':'#1a7a62';
+    return `<div class="room-mini ${st.cls}"><div class="rm-name">${r.gedung}-L${r.lantai} ${r.nama}</div>
+      <div class="rm-pmv" style="color:${pc}">${r.PMV>=0?'+':''}${r.PMV.toFixed(2)}</div>
+      <div class="rm-meta">${r.orang}/${r.kapasitas} org · AC ${r.acLoad.toFixed(1)} kW</div></div>`;
+  }).join(''):'<div style="color:var(--gray);font-size:12px;padding:8px">Tidak ada ruang aktif</div>';
+
+  // Update chart vertical lines
+  [chartPMV,chartAC].forEach(ch=>{
+    if(!ch)return;
+    const vl=ch.data.datasets.find(d=>d.label==='Jam aktif');
+    if(vl){vl.data=Array.from({length:24},(_,i)=>i===h?99:null);ch.update('none');}
+  });
+
+  if(chartScatterPMV){
+    chartScatterPMV.data.datasets=[{label:'Ruang',data:all.map(r=>({x:r.acLoad,y:r.PMV,id:r.id})),
+      backgroundColor:all.map(r=>r.PMV>1?'#b83232':r.PMV>0.5?'#c8922a':r.PMV<-0.5?'#1e5fa8':'#1a7a62'),
+      pointRadius:6,pointHoverRadius:8}];
+    chartScatterPMV.update('none');
+  }
+
+  renderRoomTable(states);
+  updateGBCI(states);
+}
+
+// Hook ke parameter engine
+const _origOPC=window.onParamChange||function(){};
+window.onParamChange=function(){_origOPC();updateDashboard();};
+const _origAP=window.applyPreset||function(){};
+window.applyPreset=function(b,k){_origAP(b,k);updateDashboard();};
+const _origSS=window.setSky||function(){};
+window.setSky=function(k,b,s){_origSS(k,b,s);updateDashboard();};
+
+function waitAndInit(){
+  if(window.ROOM_REGISTRY&&Object.keys(window.ROOM_REGISTRY).length>0){initCharts();}
+  else{setTimeout(waitAndInit,300);}
+}
+waitAndInit();
 </script>
 
 </body>
