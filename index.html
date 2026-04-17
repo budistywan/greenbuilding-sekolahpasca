@@ -1917,21 +1917,34 @@ const JADWAL = {
 };
 
 function computeRoomState(reg, param) {
-  const h = Math.floor(param.hourMin / 60);
+  const p = param || window.PARAM || { hourMin:540, temp:29, humid:72, wind:2, sky:'sunny' };
+  const skyMultMap = { sunny:1.0, partial:0.6, cloudy:0.3, overcast:0.1 };
+  const h = Math.floor(p.hourMin / 60);
   const jadwal = JADWAL[reg.tipe] || JADWAL.kuliah;
   const okkPct = jadwal[h] || 0;
   const orang  = Math.round(okkPct * (reg.kapasitas || 10));
-  const active = activeSolarDirections(param.hourMin);
-  const mult   = SKY_MULT[param.sky];
+
+  // Solar direction (inline, tidak bergantung scope luar)
+  const hf = p.hourMin / 60;
+  let active = [];
+  if (hf>=5.8&&hf<=17.87) {
+    if(hf<7)  active=["E","NE"];
+    else if(hf<9)  active=["E","NE","N"];
+    else if(hf<12) active=["N","NE","NW"];
+    else if(hf<14) active=["N","NW","W"];
+    else if(hf<16) active=["W","NW"];
+    else if(hf<18) active=["W","SW"];
+  }
+  const mult = skyMultMap[p.sky] || 1.0;
   let si = 0;
-  if (h >= 5.8 && h <= 17.87) si = Math.sin((h-5.8)*Math.PI/12.07) * mult;
+  if (hf >= 5.8 && hf <= 17.87) si = Math.sin((hf-5.8)*Math.PI/12.07) * mult;
   let dtSolar = 0;
   if (reg.hasWindow && active.length>0) {
     const hit = (reg.windowFacing||[]).filter(f=>active.includes(f)).length;
     if (hit>0) dtSolar = 4.0 * si * (hit / (reg.windowFacing.length||1));
   }
   const dtOrang = orang * 0.06;
-  const tOutEff = Math.max(0,(param.temp-28)*0.3);
+  const tOutEff = Math.max(0,(p.temp-28)*0.3);
   const tBeban  = 26.0 + dtSolar + dtOrang + tOutEff;
   const ACSetpoint = 24.0;
   const tRuang = tBeban > ACSetpoint ? ACSetpoint + (tBeban-ACSetpoint)*0.15 : tBeban;
@@ -2052,75 +2065,92 @@ function generateInsightfulRecs(states, param) {
   const h=Math.floor(param.hourMin/60);
   const recs=[];
   const seen=new Set();
-  Object.values(states).forEach(r=>{
-    const tipe=r.tipe||'kuliah';
-    const remaining=hoursRemainingUse(tipe,h);
-    const untilNext=hoursUntilNextUse(tipe,h);
-    const projOcc3=projectedOcc(tipe,h,3);
-    const dom=dominantHeat(r);
-    const occPct=Math.round(r.okkPct*100);
-    const isActive=r.orang>0;
-    const nextHour=h+(untilNext||0);
+  Object.values(states).forEach(function(r){
+    var tipe=r.tipe||'kuliah';
+    var remaining=hoursRemainingUse(tipe,h);
+    var untilNext=hoursUntilNextUse(tipe,h);
+    var projOcc3=projectedOcc(tipe,h,3);
+    var dom=dominantHeat(r);
+    var occPct=Math.round(r.okkPct*100);
+    var isActive=r.orang>0;
+    var nextHour=h+(untilNext||0);
+    var nextHourStr=String(nextHour).padStart(2,'0');
 
-    if(r.PMV>0.8&&isActive&&dom==='orang'&&r.okkPct>0.5&&!seen.has(r.id)){
+    // TIPE 1: Panas + padat + dominan orang
+    if(r.PMV>0.8 && isActive && dom==='orang' && r.okkPct>0.5 && !seen.has(r.id)){
       seen.add(r.id);
-      const vg=Math.round((r.PMV-0.5)*0.3*10)/10;
-      const as=Math.round(r.acLoad*0.15*10)/10;
+      var vg=Math.round((r.PMV-0.5)*0.3*10)/10;
+      var as_=Math.round(r.acLoad*0.15*10)/10;
+      var remTxt=remaining>0?'Masih dipakai <strong>'+remaining+' jam</strong> ke depan, proyeksi okupansi '+Math.round(projOcc3*100)+'%.':'Segera kosong.';
       recs.push({id:r.id,priority:r.PMV>1.5?'high':'med',icon:'🌀',iconBg:'#fceaea',tag:'IHC',tagBg:'#fceaea',tagColor:'#6e1a1a',
-        headline:`${r.gedung}-L${r.lantai} ${r.nama} — panas karena kepadatan, bukan solar`,
-        reasoning:`Ruang terisi <strong>${r.orang}/${r.kapasitas} orang (${occPct}%)</strong>, beban metabolik +${r.dtOrang.toFixed(1)}°C dominan vs solar +${r.dtSolar.toFixed(1)}°C. PMV <strong>${r.PMV>=0?'+':''} ${r.PMV.toFixed(2)}</strong>. Menurunkan setpoint AC menambah konsumsi tanpa mengatasi sumber panas. ${remaining>0?`Masih dipakai <strong>${remaining} jam</strong> ke depan, proyeksi okupansi ${Math.round(projOcc3*100)}%.`:'Segera kosong.'}`,
-        action:`Tingkatkan ACH +30% (suplai udara segar) — jangan turunkan setpoint`,
-        impact:`PMV proyeksi −${vg.toFixed(1)} · hemat ${as.toFixed(1)} kW vs turunkan setpoint`,
-        timeCtx:remaining>0?`Aktif ${remaining} jam lagi`:'Segera kosong',pord:r.PMV});
+        headline:r.gedung+'-L'+r.lantai+' '+r.nama+' — panas karena kepadatan, bukan solar',
+        reasoning:'Ruang terisi <strong>'+r.orang+'/'+r.kapasitas+' orang ('+occPct+'%)</strong>, beban metabolik +'+r.dtOrang.toFixed(1)+'°C dominan vs solar +'+r.dtSolar.toFixed(1)+'°C. PMV <strong>'+(r.PMV>=0?'+':'')+r.PMV.toFixed(2)+'</strong>. Menurunkan setpoint AC menambah konsumsi tanpa mengatasi sumber panas. '+remTxt,
+        action:'Tingkatkan ACH +30% (suplai udara segar) — jangan turunkan setpoint',
+        impact:'PMV proyeksi −'+vg.toFixed(1)+' · hemat '+as_.toFixed(1)+' kW vs turunkan setpoint',
+        timeCtx:remaining>0?'Aktif '+remaining+' jam lagi':'Segera kosong',pord:r.PMV});
     }
 
-    if(r.PMV>0.8&&isActive&&dom==='solar'&&r.dtSolar>1.5&&!seen.has(r.id)){
+    // TIPE 2: Panas + dominan solar
+    if(r.PMV>0.8 && isActive && dom==='solar' && r.dtSolar>1.5 && !seen.has(r.id)){
       seen.add(r.id);
-      const sg=Math.round(r.dtSolar*0.6*10)/10;
+      var sg=Math.round(r.dtSolar*0.6*10)/10;
+      var facing=(r.windowFacing||[]).join(', ');
+      var facingPlus=(r.windowFacing||[]).join('+');
+      var remTxt2=remaining>0?'Kondisi berlangsung <strong>'+remaining+' jam</strong> lagi.':'';
       recs.push({id:r.id,priority:r.PMV>1.5?'high':'med',icon:'☀',iconBg:'#fdf3e0',tag:'IHC+EEC',tagBg:'#fdf3e0',tagColor:'#7a5510',
-        headline:`${r.gedung}-L${r.lantai} ${r.nama} — solar load tinggi dari fasad ${(r.windowFacing||[]).join('+')}`,
-        reasoning:`Jendela menghadap <strong>${(r.windowFacing||[]).join(', ')}</strong> berkontribusi +${r.dtSolar.toFixed(1)}°C. Beban orang +${r.dtOrang.toFixed(1)}°C. PMV <strong>${r.PMV>=0?'+':''} ${r.PMV.toFixed(2)}</strong>. Sumber panas dari fasad — menurunkan setpoint tidak efisien. ${remaining>0?`Kondisi berlangsung <strong>${remaining} jam</strong> lagi.`:''}\`,
-        action:\`Aktifkan tirai/blind sisi ${(r.windowFacing||[]).join('+')} — reduksi solar load hingga 60%\`,
-        impact:\`PMV proyeksi −${sg.toFixed(1)} · hemat ${Math.round(sg*0.3*10)/10} kW AC\`,
-        timeCtx:remaining>0?\`Solar aktif ~${remaining} jam\`:'Akhir paparan',pord:r.PMV});
+        headline:r.gedung+'-L'+r.lantai+' '+r.nama+' — solar load tinggi dari fasad '+facingPlus,
+        reasoning:'Jendela menghadap <strong>'+facing+'</strong> berkontribusi +'+r.dtSolar.toFixed(1)+'°C. Beban orang +'+r.dtOrang.toFixed(1)+'°C. PMV <strong>'+(r.PMV>=0?'+':'')+r.PMV.toFixed(2)+'</strong>. Sumber panas dari fasad — menurunkan setpoint tidak efisien. '+remTxt2,
+        action:'Aktifkan tirai/blind sisi '+facingPlus+' — reduksi solar load hingga 60%',
+        impact:'PMV proyeksi −'+sg.toFixed(1)+' · hemat '+Math.round(sg*0.3*10)/10+' kW AC',
+        timeCtx:remaining>0?'Solar aktif ~'+remaining+' jam':'Akhir paparan',pord:r.PMV});
     }
 
-    if(r.PMV<-0.5&&r.acLoad>0.5&&(!isActive||r.okkPct<0.2)&&!seen.has(r.id)){
+    // TIPE 3: Dingin berlebih + hampir kosong
+    if(r.PMV<-0.5 && r.acLoad>0.5 && (!isActive||r.okkPct<0.2) && !seen.has(r.id)){
       seen.add(r.id);
-      const wk=Math.round(r.acLoad*0.7*10)/10;
+      var wk=Math.round(r.acLoad*0.7*10)/10;
+      var whoTxt=isActive?r.orang+' orang ('+occPct+'%)':'kosong';
+      var schedTxt=untilNext?'Penggunaan berikutnya <strong>'+untilNext+' jam lagi</strong> (jam '+nextHourStr+':00) proyeksi '+Math.round(projOcc3*100)+'% kapasitas.':'Tidak ada jadwal lagi hari ini.';
+      var actTxt=untilNext&&untilNext<=2?'Naikkan setpoint ke 28°C, pre-cool 30 mnt sebelum jam '+nextHourStr+':00':untilNext?'Matikan AC, nyalakan '+(untilNext-1)+' jam sebelum jam '+nextHourStr+':00':'Matikan AC — tidak ada jadwal lagi';
+      var impTxt='Hemat ~'+wk.toFixed(1)+' kW'+(untilNext?' · nyaman saat jam '+nextHourStr+':00':'');
       recs.push({id:r.id,priority:r.acLoad>1.0?'med':'low',icon:'❄',iconBg:'#e8f0fb',tag:'EEC',tagBg:'#e8f0fb',tagColor:'#0d3566',
-        headline:`${r.gedung}-L${r.lantai} ${r.nama} — AC over-cooling ruang ${isActive?'hampir kosong':'kosong'}`,
-        reasoning:`Hanya <strong>${isActive?r.orang+' orang ('+occPct+'%)':'kosong'}</strong>, PMV <strong>${r.PMV.toFixed(2)}</strong>. ${untilNext?`Penggunaan berikutnya <strong>${untilNext} jam lagi</strong> (jam ${String(nextHour).padStart(2,'0')}:00) proyeksi ${Math.round(projOcc3*100)}% kapasitas.`:'Tidak ada jadwal lagi hari ini.'} Energi ${wk.toFixed(1)} kW terbuang sia-sia.`,
-        action:untilNext&&untilNext<=2?`Naikkan setpoint ke 28°C, pre-cool 30 mnt sebelum jam ${String(nextHour).padStart(2,'0')}:00`:untilNext?`Matikan AC, nyalakan ${untilNext-1} jam sebelum jam ${String(nextHour).padStart(2,'0')}:00`:'Matikan AC — tidak ada jadwal lagi',
-        impact:`Hemat ~${wk.toFixed(1)} kW${untilNext?\` · nyaman saat jam ${String(nextHour).padStart(2,'0')}:00\`:''}\`,
-        timeCtx:untilNext?\`Pakai lagi ${untilNext} jam':'Tidak dipakai lagi',pord:r.acLoad});
+        headline:r.gedung+'-L'+r.lantai+' '+r.nama+' — AC over-cooling ruang '+(isActive?'hampir kosong':'kosong'),
+        reasoning:'Hanya <strong>'+whoTxt+'</strong>, PMV <strong>'+r.PMV.toFixed(2)+'</strong>. '+schedTxt+' Energi '+wk.toFixed(1)+' kW terbuang sia-sia.',
+        action:actTxt, impact:impTxt,
+        timeCtx:untilNext?'Pakai lagi '+untilNext+' jam':'Tidak dipakai lagi',pord:r.acLoad});
     }
 
-    if(!isActive&&untilNext&&untilNext<=2&&projOcc3>0.6&&!seen.has(r.id+'_pc')){
+    // TIPE 4: Pre-cooling window
+    if(!isActive && untilNext && untilNext<=2 && projOcc3>0.6 && !seen.has(r.id+'_pc')){
       seen.add(r.id+'_pc');
-      const expPMV=Math.max(0,((26+projOcc3*(r.kapasitas||20)*0.06+(r.dtSolar||0))-24)*0.3);
-      if(expPMV>0.6) recs.push({id:r.id+'_pc',priority:'med',icon:'⏱',iconBg:'#e0f4ef',tag:'IHC+EEC',tagBg:'#e0f4ef',tagColor:'#0d4d3c',
-        headline:`${r.gedung}-L${r.lantai} ${r.nama} — window pre-cooling sebelum kelas jam ${String(nextHour).padStart(2,'0')}:00`,
-        reasoning:`Ruang kosong, <strong>${untilNext} jam lagi</strong> akan diisi ~<strong>${Math.round(projOcc3*(r.kapasitas||20))} orang (${Math.round(projOcc3*100)}%)</strong>. Tanpa pre-cooling PMV awal sesi <strong>+${expPMV.toFixed(2)}</strong> — tidak nyaman sejak menit pertama. Pre-cooling sekarang 25% lebih efisien vs reaktif.`,
-        action:`Mulai pendinginan ke 22°C sekarang — naikkan ke 24°C saat orang masuk jam ${String(nextHour).padStart(2,'0')}:00`,
-        impact:`PMV awal sesi +${Math.max(0,expPMV-0.4).toFixed(2)} → +0.1 · 25% lebih efisien`,
-        timeCtx:`${untilNext} jam sebelum kelas`,pord:projOcc3});
+      var expPMV=Math.max(0,((26+projOcc3*(r.kapasitas||20)*0.06+(r.dtSolar||0))-24)*0.3);
+      if(expPMV>0.6){
+        recs.push({id:r.id+'_pc',priority:'med',icon:'⏱',iconBg:'#e0f4ef',tag:'IHC+EEC',tagBg:'#e0f4ef',tagColor:'#0d4d3c',
+          headline:r.gedung+'-L'+r.lantai+' '+r.nama+' — window pre-cooling sebelum kelas jam '+nextHourStr+':00',
+          reasoning:'Ruang kosong, <strong>'+untilNext+' jam lagi</strong> akan diisi ~<strong>'+Math.round(projOcc3*(r.kapasitas||20))+' orang ('+Math.round(projOcc3*100)+'%)</strong>. Tanpa pre-cooling PMV awal sesi <strong>+'+expPMV.toFixed(2)+'</strong> — tidak nyaman sejak menit pertama. Pre-cooling sekarang 25% lebih efisien vs reaktif.',
+          action:'Mulai pendinginan ke 22°C sekarang — naikkan ke 24°C saat orang masuk jam '+nextHourStr+':00',
+          impact:'PMV awal sesi +'+Math.max(0,expPMV-0.4).toFixed(2)+' → +0.1 · 25% lebih efisien',
+          timeCtx:untilNext+' jam sebelum kelas',pord:projOcc3});
+      }
     }
 
-    if(isActive&&r.acLoad>1.2&&r.okkPct<0.3&&remaining>1&&!seen.has(r.id+'_lo')){
+    // TIPE 5: Boros + okupansi rendah
+    if(isActive && r.acLoad>1.2 && r.okkPct<0.3 && remaining>1 && !seen.has(r.id+'_lo')){
       seen.add(r.id+'_lo');
-      const sk=Math.round(r.acLoad*0.35*10)/10;
+      var sk=Math.round(r.acLoad*0.35*10)/10;
+      var actLow=projOcc3>0.5?'Pertahankan setpoint — konsolidasi penghuni ke area tertentu':'Naikkan setpoint ke 26°C — proyeksi hunian tetap rendah ('+Math.round(projOcc3*100)+'%)';
       recs.push({id:r.id+'_lo',priority:'low',icon:'📊',iconBg:'#f0ede8',tag:'EEC',tagBg:'#f0ede8',tagColor:'#444441',
-        headline:`${r.gedung}-L${r.lantai} ${r.nama} — AC penuh untuk ${occPct}% kapasitas`,
-        reasoning:`Hanya <strong>${r.orang}/${r.kapasitas} orang</strong> (${occPct}%), AC ${r.acLoad.toFixed(1)} kW. Masih <strong>${remaining} jam</strong> tersisa. Proyeksi 3 jam: ${Math.round(projOcc3*100)}% — ${projOcc3>0.5?'akan ramai':'tetap rendah'}.`,
-        action:projOcc3>0.5?'Pertahankan setpoint — konsolidasi penghuni ke area tertentu':`Naikkan setpoint ke 26°C — proyeksi hunian tetap rendah (${Math.round(projOcc3*100)}%)`,
-        impact:`Hemat ~${sk.toFixed(1)} kW · PMV tetap ±0.5`,
-        timeCtx:`Aktif ${remaining} jam lagi`,pord:r.acLoad/Math.max(0.1,r.okkPct)});
+        headline:r.gedung+'-L'+r.lantai+' '+r.nama+' — AC penuh untuk '+occPct+'% kapasitas',
+        reasoning:'Hanya <strong>'+r.orang+'/'+r.kapasitas+' orang</strong> ('+occPct+'%), AC '+r.acLoad.toFixed(1)+' kW. Masih <strong>'+remaining+' jam</strong> tersisa. Proyeksi 3 jam: '+Math.round(projOcc3*100)+'% — '+(projOcc3>0.5?'akan ramai':'tetap rendah')+'.',
+        action:actLow,
+        impact:'Hemat ~'+sk.toFixed(1)+' kW · PMV tetap ±0.5',
+        timeCtx:'Aktif '+remaining+' jam lagi',pord:r.acLoad/Math.max(0.1,r.okkPct)});
     }
   });
-  const pOrd={high:3,med:2,low:1};
-  return recs.sort((a,b)=>(pOrd[b.priority]||0)-(pOrd[a.priority]||0)||b.pord-a.pord).slice(0,8);
+  var pOrd={high:3,med:2,low:1};
+  return recs.sort(function(a,b){return (pOrd[b.priority]||0)-(pOrd[a.priority]||0)||b.pord-a.pord;}).slice(0,8);
 }
+
 
 function renderInsightRecs(recs) {
   const el=document.getElementById('insightRecGrid');
