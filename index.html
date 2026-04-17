@@ -1862,12 +1862,22 @@ function computeRoomState(reg, param) {
     const hit = (reg.windowFacing||[]).filter(f=>active.includes(f)).length;
     if (hit>0) dtSolar = 4.0 * si * (hit / (reg.windowFacing.length||1));
   }
-  const dtOrang = orang * 0.06;
-  const tOutEff = Math.max(0,(p.temp-28)*0.3);
+  const dtOrang = orang * 0.055;  // metabolic heat
+  const tOutEff = Math.max(0, (p.temp - 26) * 0.35);
   const tBeban  = 26.0 + dtSolar + dtOrang + tOutEff;
-  const ACSetpoint = 24.0;
-  const tRuang = tBeban > ACSetpoint ? ACSetpoint + (tBeban-ACSetpoint)*0.15 : tBeban;
-  const acLoad = tBeban > ACSetpoint ? (tBeban-ACSetpoint)*0.4*((reg.kapasitas||10)/20) : 0;
+
+  // AC realistis: efektivitas berkurang saat beban tinggi relatif kapasitas
+  const ACSetpoint  = 24.0;
+  const heatLoad    = Math.max(0, tBeban - ACSetpoint);
+  // Kapasitas AC per orang (ruang besar lebih efisien per orang)
+  const acPerOrang  = 0.15 + (reg.kapasitas || 10) * 0.003;
+  const ACcapFactor = Math.min(1.0, (acPerOrang * (reg.kapasitas||10)) / Math.max(1, heatLoad));
+  const tRuang = tBeban > ACSetpoint
+    ? ACSetpoint + heatLoad * (1 - ACcapFactor * 0.70)
+    : tBeban;
+  const acLoad = tBeban > ACSetpoint
+    ? Math.min(5.0, heatLoad * ACcapFactor * 0.45 * ((reg.kapasitas||10) / 20))
+    : 0;
   const PMV    = (tRuang - 24.0) * 0.3;
   return { PMV:+PMV.toFixed(2), tRuang:+tRuang.toFixed(1), orang, okkPct, acLoad:+acLoad.toFixed(2), dtSolar:+dtSolar.toFixed(2), dtOrang:+dtOrang.toFixed(2) };
 }
