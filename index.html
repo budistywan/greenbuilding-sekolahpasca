@@ -143,6 +143,19 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
   pointer-events: none;
   width: 100%;
 }
+/* Zona klik-tembus di bawah Cesium — memungkinkan scroll halaman */
+#scroll-zone {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 120px;
+  z-index: 20;
+  cursor: s-resize;
+  pointer-events: auto;
+}
+#scroll-zone:hover ~ #scroll-cue .sc-label,
+#scroll-zone:hover + * .sc-label {
+  opacity: 1;
+}
 .sc-peek {
   width: 100%;
   background: linear-gradient(to bottom, rgba(30,39,56,0) 0%, rgba(30,39,56,0.72) 60%, rgba(30,39,56,0.96) 100%);
@@ -507,6 +520,9 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
         Klik ruang → detail · Klik kanan → reset
       </div>
     </div>
+
+    <!-- Scroll zone — zona klik untuk scroll ke bawah -->
+    <div id="scroll-zone" onclick="scrollToContent()" title="Klik untuk scroll ke dashboard"></div>
 
     <!-- Scroll cue + peek -->
     <div id="scroll-cue">
@@ -1648,6 +1664,29 @@ function toggleParam() {
 
 /* Init */
 updateKPIs();
+
+/* ── Scroll functions ── */
+function scrollToContent() {
+  const target = document.getElementById("param-section");
+  if (target) target.scrollIntoView({ behavior: "smooth" });
+}
+
+// Wheel event di scroll-zone → scroll halaman
+document.getElementById("scroll-zone").addEventListener("wheel", (e) => {
+  e.preventDefault();
+  window.scrollBy({ top: e.deltaY * 2, behavior: "smooth" });
+}, { passive: false });
+
+// Touch swipe di scroll-zone → scroll halaman
+let _touchStartY = 0;
+document.getElementById("scroll-zone").addEventListener("touchstart", (e) => {
+  _touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.getElementById("scroll-zone").addEventListener("touchmove", (e) => {
+  const dy = _touchStartY - e.touches[0].clientY;
+  window.scrollBy({ top: dy, behavior: "auto" });
+  _touchStartY = e.touches[0].clientY;
+}, { passive: true });
 </script>
 
 </body>
