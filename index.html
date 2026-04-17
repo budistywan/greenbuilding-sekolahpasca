@@ -564,6 +564,58 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
   background: rgba(255,255,255,0.08);
   margin: 0 20px; flex-shrink: 0;
 }
+/* ── GBCI SCORECARD ── */
+.gbci-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.gbci-kpi{background:var(--surface);border-radius:var(--r);padding:13px 15px}
+.gbci-kpi-lbl{font-size:10px;color:var(--gray);margin-bottom:4px;line-height:1.3}
+.gbci-kpi-val{font-size:21px;font-weight:500;color:var(--ink);line-height:1;margin-bottom:2px}
+.gbci-kpi-sub{font-size:10px;color:var(--gray)}
+.gbci-ctx{display:flex;align-items:center;gap:7px;padding:9px 13px;background:var(--surface);border-radius:var(--r);margin-bottom:5px;flex-wrap:wrap}
+.gbci-ctx-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.gbci-ctx-lbl{font-size:11px;font-weight:500;color:var(--ink)}
+.gbci-ctx-sep{font-size:10px;color:var(--border2)}
+.gbci-ctx-item{font-size:11px;color:var(--gray)}
+.gbci-framing{font-size:10px;color:var(--gray);font-style:italic;line-height:1.6;margin-bottom:18px;padding:0 1px}
+.gbci-catlist{border:0.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px}
+.gbci-cat{padding:13px 15px;background:var(--white)}
+.gbci-cat:not(:last-child){border-bottom:0.5px solid var(--border)}
+.gbci-cat-head{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.gbci-cat-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gbci-cat-names{flex:1;min-width:0}
+.gbci-cat-code{font-size:12px;font-weight:500;color:var(--ink)}
+.gbci-cat-long{font-size:10px;color:var(--gray);margin-top:1px}
+.gbci-cat-scorerow{display:flex;align-items:center;gap:8px}
+.gbci-cat-score{font-size:13px;font-weight:500;font-family:var(--font-m);color:var(--ink);min-width:38px}
+.gbci-cat-barout{flex:1;height:5px;background:var(--gray-lt);border-radius:3px;overflow:hidden;min-width:70px}
+.gbci-cat-barin{height:100%;border-radius:3px}
+.gbci-cat-diag{font-size:11px;color:var(--gray);line-height:1.55;margin-bottom:6px}
+.gbci-cat-diag strong{font-weight:500;color:var(--ink)}
+.gbci-sim{display:flex;gap:5px;flex-wrap:wrap}
+.gbci-pill{font-size:10px;padding:2px 8px;border-radius:10px;border:0.5px solid var(--border);color:var(--gray);white-space:nowrap}
+.gbci-pill.better{background:#e0f4ef;color:#0d4d3c;border-color:#5DCAA5}
+.gbci-pill.worse{background:#fceaea;color:#6e1a1a;border-color:#F09595}
+.gbci-pill.neutral{background:var(--surface)}
+.gbci-divider{padding:8px 15px;background:var(--surface);border-bottom:0.5px solid var(--border)}
+.gbci-divider-lbl{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+.gbci-normat{padding:11px 15px;background:var(--white)}
+.gbci-normat:not(:last-child){border-bottom:0.5px solid var(--border)}
+.gbci-normat-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.gbci-normat-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gbci-normat-code{font-size:11px;font-weight:500;color:var(--ink)}
+.gbci-normat-msg{font-size:11px;color:var(--gray);line-height:1.55;padding-left:30px}
+.gbci-decision{background:var(--white);border:0.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.gbci-dec-head{padding:13px 15px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.gbci-dec-title{font-size:12px;font-weight:500;color:var(--ink)}
+.gbci-dec-sub{font-size:10px;color:var(--gray)}
+.gbci-dec-item{display:flex;align-items:flex-start;gap:10px;padding:11px 15px}
+.gbci-dec-item:not(:last-child){border-bottom:0.5px solid var(--border)}
+.gbci-dec-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;margin-top:1px}
+.gbci-dec-body{flex:1;min-width:0}
+.gbci-dec-ttl{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.gbci-dec-desc{font-size:11px;color:var(--gray);line-height:1.5}
+.gbci-dec-impact{font-size:10px;font-family:var(--font-m);margin-top:3px;color:var(--gray)}
+.gbci-dec-tag{font-size:9px;font-weight:500;padding:2px 7px;border-radius:8px;white-space:nowrap;align-self:flex-start;margin-top:1px;flex-shrink:0}
+
 #param-section { background: var(--ink2); border-top: 1px solid rgba(255,255,255,0.06); }
 
 #param-toggle {
@@ -1151,37 +1203,155 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
 
   <!-- LAYER 5: GBCI Scorecard -->
   <div class="dash-header" style="margin-top:8px">
-    <span class="dash-title">GBCI Scorecard</span>
+    <span class="dash-title">Kesiapan sertifikasi GBCI</span>
     <div class="dash-rule"></div>
-    <span class="dash-tag">Dinamis dari kondisi real-time</span>
+    <span class="dash-tag">Greenship v1.2 · indikatif operasional</span>
   </div>
   <div class="dash-body">
-    <div class="two-col">
-      <div class="card">
-        <div class="score-row">
-          <div class="score-circle">
-            <div class="score-num" id="gbciTotal">61</div>
-            <div class="score-den">/ 100</div>
-          </div>
-          <div class="score-info">
-            <div class="rating" id="gbciRating">Silver</div>
-            <div class="gap" id="gbciGap">Butuh <strong>+13 poin</strong> untuk Gold</div>
-          </div>
-        </div>
-        <div class="cat-list">
-          <div class="cat-row"><span class="cat-nm">EEC</span><div class="cat-bg"><div class="cat-fill" id="fillEEC" style="width:62%;background:#c8922a"></div></div><span class="cat-pt" id="ptEEC">21/34</span></div>
-          <div class="cat-row"><span class="cat-nm">IHC</span><div class="cat-bg"><div class="cat-fill" id="fillIHC" style="width:70%;background:#1a7a62"></div></div><span class="cat-pt" id="ptIHC">14/20</span></div>
-          <div class="cat-row"><span class="cat-nm">WAC</span><div class="cat-bg"><div class="cat-fill" style="width:55%;background:#1e5fa8"></div></div><span class="cat-pt">11/20</span></div>
-          <div class="cat-row"><span class="cat-nm">ASD</span><div class="cat-bg"><div class="cat-fill" style="width:80%;background:#7f77dd"></div></div><span class="cat-pt">8/10</span></div>
-          <div class="cat-row"><span class="cat-nm">BEM</span><div class="cat-bg"><div class="cat-fill" style="width:44%;background:#888580"></div></div><span class="cat-pt">7/16</span></div>
-        </div>
-        <div class="gap-box" id="gbciGapBox">Gap ke Gold: <strong>13 poin</strong></div>
+    <div class="gbci-kpi-grid">
+      <div class="gbci-kpi">
+        <div class="gbci-kpi-lbl">Peringkat</div>
+        <div class="gbci-kpi-val" id="gbciRating" style="color:#854F0B">Bronze</div>
+        <div class="gbci-kpi-sub">Certifying · Bronze · Silver · Gold</div>
       </div>
-      <div class="card" style="display:flex;flex-direction:column;gap:6px">
-        <div class="c-title">Ringkasan kondisi IHC &amp; EEC</div>
-        <div id="gbciCondSummary" style="font-size:12px;color:var(--gray);line-height:1.7">—</div>
+      <div class="gbci-kpi">
+        <div class="gbci-kpi-lbl">Skor indikatif</div>
+        <div class="gbci-kpi-val"><span id="gbciTotal">51</span> <span style="font-size:13px;font-weight:400;color:var(--gray)">poin</span></div>
+        <div class="gbci-kpi-sub">dari maks. 100 · Greenship</div>
+      </div>
+      <div class="gbci-kpi">
+        <div class="gbci-kpi-lbl">Jarak ke Gold</div>
+        <div class="gbci-kpi-val" style="color:var(--red)"><span id="gbciGapVal">+23</span> <span style="font-size:13px;font-weight:400;color:var(--gray)">poin</span></div>
+        <div class="gbci-kpi-sub">target 74 poin untuk Gold</div>
+      </div>
+      <div class="gbci-kpi">
+        <div class="gbci-kpi-lbl">Kategori operasional kritis</div>
+        <div class="gbci-kpi-val" style="color:var(--red)"><span id="gbciKritisVal">2</span> <span style="font-size:13px;font-weight:400;color:var(--gray)">dari 5</span></div>
+        <div class="gbci-kpi-sub">EEC &amp; IHC · bervariasi per kondisi</div>
       </div>
     </div>
+
+    <div class="gbci-ctx" id="gbciCtxBar">
+      <div class="gbci-ctx-dot" id="gbciCtxDot" style="background:var(--red)"></div>
+      <span class="gbci-ctx-lbl" id="gbciCtxLbl">Kondisi puncak harian aktif</span>
+      <span class="gbci-ctx-sep">·</span>
+      <span class="gbci-ctx-item" id="gbciCtxMode">Mode Moderat</span>
+      <span class="gbci-ctx-sep">·</span>
+      <span class="gbci-ctx-item" id="gbciCtxJam">13:00 WIB</span>
+      <span class="gbci-ctx-sep">·</span>
+      <span class="gbci-ctx-item" id="gbciCtxCuaca">34°C · Cerah</span>
+      <span class="gbci-ctx-sep">·</span>
+      <span class="gbci-ctx-item">berulang ~3 jam/hari kerja</span>
+    </div>
+    <div class="gbci-framing" id="gbciFraming">Skor mencerminkan performa gedung saat puncak beban harian — kondisi ini berulang hampir setiap hari kerja. Bukan hasil audit GBCI resmi; gunakan sebagai panduan operasional.</div>
+
+    <div class="gbci-catlist">
+
+      <!-- EEC -->
+      <div class="gbci-cat">
+        <div class="gbci-cat-head">
+          <div class="gbci-cat-icon" style="background:#FAEEDA">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8.5 1L4 9h4l-2 6 7-8H9l-.5-6z" stroke="#854F0B" stroke-width="1.2" stroke-linejoin="round" fill="#854F0B" fill-opacity="0.2"/></svg>
+          </div>
+          <div class="gbci-cat-names">
+            <div class="gbci-cat-code">EEC <span style="font-size:9px;font-weight:400;color:var(--gray)">· Energy Efficiency &amp; Conservation · Kriteria 1</span></div>
+            <div class="gbci-cat-long">Efisiensi &amp; Konservasi Energi</div>
+          </div>
+          <div class="gbci-cat-scorerow">
+            <span class="gbci-cat-score" id="ptEEC">25/34</span>
+            <div class="gbci-cat-barout"><div class="gbci-cat-barin" id="fillEEC" style="width:73%;background:#EF9F27"></div></div>
+          </div>
+        </div>
+        <div class="gbci-cat-diag" id="diagEEC">AC bekerja keras saat puncak. Skor berfluktuasi: lebih baik pagi hari, lebih buruk siang terik.</div>
+        <div class="gbci-sim" id="simEEC">
+          <span class="gbci-pill neutral">menghitung...</span>
+        </div>
+      </div>
+
+      <!-- IHC -->
+      <div class="gbci-cat">
+        <div class="gbci-cat-head">
+          <div class="gbci-cat-icon" style="background:#FCEBEB">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="6.5" y="1" width="3" height="8.5" rx="1.5" stroke="#A32D2D" stroke-width="1.1"/><circle cx="8" cy="12" r="2.5" stroke="#A32D2D" stroke-width="1.1" fill="#A32D2D" fill-opacity="0.15"/><line x1="8" y1="4.5" x2="8" y2="9" stroke="#A32D2D" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <div class="gbci-cat-names">
+            <div class="gbci-cat-code">IHC <span style="font-size:9px;font-weight:400;color:var(--gray)">· Indoor Health &amp; Comfort · Kriteria 2</span></div>
+            <div class="gbci-cat-long">Kenyamanan &amp; Kesehatan Ruang Dalam</div>
+          </div>
+          <div class="gbci-cat-scorerow">
+            <span class="gbci-cat-score" id="ptIHC" style="color:var(--red)">0/20</span>
+            <div class="gbci-cat-barout"><div class="gbci-cat-barin" id="fillIHC" style="width:0%;background:var(--red)"></div></div>
+          </div>
+        </div>
+        <div class="gbci-cat-diag" id="diagIHC">Tidak ada ruang dalam target PMV ±0.5 saat puncak. Di luar jam puncak, kenyamanan membaik signifikan.</div>
+        <div class="gbci-sim" id="simIHC">
+          <span class="gbci-pill neutral">menghitung...</span>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="gbci-divider">
+        <div class="gbci-divider-lbl">Kategori strategis · tidak dipengaruhi kondisi operasional harian</div>
+      </div>
+
+      <!-- WAC -->
+      <div class="gbci-normat">
+        <div class="gbci-normat-head">
+          <div class="gbci-normat-icon" style="background:#E6F1FB">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2C8 2 5 6 5 9.5a3 3 0 006 0C11 6 8 2 8 2z" stroke="#185FA5" stroke-width="1.2" fill="#378ADD" fill-opacity="0.15"/></svg>
+          </div>
+          <div>
+            <div class="gbci-normat-code">WAC <span style="font-size:9px;font-weight:400;color:var(--gray)">· Water Conservation · Kriteria 3</span></div>
+          </div>
+        </div>
+        <div class="gbci-normat-msg">Maksimalkan dengan meningkatkan sistem daur ulang greywater ke ≥30% dan memasang sub-meter air per lantai.</div>
+      </div>
+
+      <!-- ASD -->
+      <div class="gbci-normat">
+        <div class="gbci-normat-head">
+          <div class="gbci-normat-icon" style="background:#EAF3DE">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2C6 4 3 5 3 8c0 2.8 2.2 5 5 5s5-2.2 5-5c0-3-3-4-5-6z" stroke="#3B6D11" stroke-width="1.1" fill="#639922" fill-opacity="0.2"/><path d="M8 8v4" stroke="#3B6D11" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="gbci-normat-code">ASD <span style="font-size:9px;font-weight:400;color:var(--gray)">· Appropriate Site Development · Kriteria 4</span></div>
+          </div>
+        </div>
+        <div class="gbci-normat-msg">Maksimalkan dengan memastikan rasio RTH terpelihara dan sistem pengelolaan limpasan air terdokumentasi untuk audit berikutnya.</div>
+      </div>
+
+      <!-- BEM -->
+      <div class="gbci-normat">
+        <div class="gbci-normat-head">
+          <div class="gbci-normat-icon" style="background:#F1EFE8">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="#444441" stroke-width="1.1"/><line x1="5.5" y1="6" x2="10.5" y2="6" stroke="#444441" stroke-width="1" stroke-linecap="round"/><line x1="5.5" y1="8.5" x2="10.5" y2="8.5" stroke="#444441" stroke-width="1" stroke-linecap="round"/><line x1="5.5" y1="11" x2="8.5" y2="11" stroke="#444441" stroke-width="1" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="gbci-normat-code">BEM <span style="font-size:9px;font-weight:400;color:var(--gray)">· Building &amp; Environment Management · Kriteria 5</span></div>
+          </div>
+        </div>
+        <div class="gbci-normat-msg">Maksimalkan dengan melengkapi commissioning log MEP dan menyusun laporan green procurement — gap terbesar yang dapat ditutup tanpa perubahan fisik gedung.</div>
+      </div>
+
+    </div>
+
+    <!-- Keputusan operasional — hanya EEC & IHC -->
+    <div class="gbci-decision" id="gbciDecision">
+      <div class="gbci-dec-head">
+        <div>
+          <div class="gbci-dec-title">Keputusan operasional menuju Gold</div>
+          <div class="gbci-dec-sub">berdasarkan kondisi EEC &amp; IHC saat ini</div>
+        </div>
+        <div style="font-size:11px;color:var(--gray)">perlu <strong id="gbciGapBox" style="color:var(--red)">+23 poin</strong></div>
+      </div>
+      <div id="gbciDecList">
+        <div class="gbci-dec-item">
+          <div class="gbci-dec-num" style="background:var(--surface);color:var(--gray)">—</div>
+          <div class="gbci-dec-body"><div class="gbci-dec-desc">Menghitung rekomendasi...</div></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- LAYER 6: Rekomendasi Insightful -->
@@ -2251,32 +2421,154 @@ function renderRoomTable(states) {
 }
 
 function updateGBCI(states) {
-  const all = Object.values(states); if (!all.length) return;
-  const ihcPct = all.filter(r=>Math.abs(r.PMV)<=0.5).length/all.length;
-  const ihcPts = Math.round(ihcPct*20);
-  const totalAC = all.reduce((s,r)=>s+r.acLoad,0);
-  const eecPts  = Math.round(Math.max(10, 34*(1-totalAC/(all.length*2.5))));
-  const total   = eecPts+ihcPts+11+8+7;
-  const rating  = total>=74?'Gold':total>=53?'Silver':total>=35?'Bronze':'Certifying';
-  const gap     = Math.max(0,74-total);
-  document.getElementById('gbciTotal').textContent = total;
-  document.getElementById('gbciRating').textContent = rating;
-  document.getElementById('gbciRating').style.color = rating==='Gold'?'#c8922a':'#888580';
-  document.getElementById('gbciGap').innerHTML = gap>0?`Butuh <strong>+${gap} poin</strong> untuk Gold`:'<strong>Target Gold tercapai!</strong>';
-  document.getElementById('gbciGapBox').innerHTML = gap>0?`Gap ke Gold: <strong>${gap} poin</strong>`:'<strong>🏆 Gold tercapai!</strong>';
+  var all = Object.values(states); if (!all.length) return;
+  var h = Math.floor(PARAM.hourMin/60);
+  var isPeak = (h >= 11 && h <= 15);
+
+  // IHC berbobot: puncak 30%, non-puncak 70%
+  var peakHours    = [11,12,13,14,15];
+  var nonPeakHours = [7,8,9,10,16,17];
+  function ihcAtHour(hr) {
+    var fp = Object.assign({}, PARAM, {hourMin: hr*60});
+    var ss = Object.values(window.ROOM_REGISTRY||{}).map(function(reg){ return computeRoomState(reg, fp); });
+    if (!ss.length) return 0;
+    return ss.filter(function(r){return Math.abs(r.PMV)<=0.5;}).length / ss.length;
+  }
+  var peakIHCpct    = peakHours.reduce(function(s,hr){return s+ihcAtHour(hr);},0)/peakHours.length;
+  var nonPeakIHCpct = nonPeakHours.reduce(function(s,hr){return s+ihcAtHour(hr);},0)/nonPeakHours.length;
+  var ihcPct = peakIHCpct * 0.30 + nonPeakIHCpct * 0.70;
+  var ihcPts = Math.round(ihcPct * 20);
+
+  var totalAC = all.reduce(function(s,r){return s+r.acLoad;},0);
+  var eecPts  = Math.round(Math.max(10, 34*(1 - totalAC/(all.length*2.5))));
+  var total   = eecPts + ihcPts + 11 + 8 + 7;
+  var rating  = total>=74?'Gold':total>=53?'Silver':total>=35?'Bronze':'Certifying';
+  var gap     = Math.max(0, 74-total);
+  var ratingColor = rating==='Gold'?'#c8922a':rating==='Silver'?'#888580':rating==='Bronze'?'#854F0B':'var(--gray)';
+
+  function setEl(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  function setHtml(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
+
+  setEl('gbciTotal', total);
+  var ratingEl=document.getElementById('gbciRating');
+  if(ratingEl){ratingEl.textContent=rating;ratingEl.style.color=ratingColor;}
+  setEl('gbciGapVal', gap>0?'+'+gap:'0');
+  setHtml('gbciGapBox', gap>0?'+'+gap+' poin':'<span style="color:#3B6D11">Gold tercapai!</span>');
   document.getElementById('footerRating').textContent = rating;
-  document.getElementById('fillEEC').style.width=(eecPts/34*100)+'%';
-  document.getElementById('ptEEC').textContent=eecPts+'/34';
-  document.getElementById('fillIHC').style.width=(ihcPts/20*100)+'%';
-  document.getElementById('ptIHC').textContent=ihcPts+'/20';
-  var impEEC=document.getElementById('impEEC');
-  var impIHC=document.getElementById('impIHC');
-  if(impEEC) impEEC.textContent=eecPts+'/34';
-  if(impIHC) impIHC.textContent=ihcPts+'/20';
-  const hotCount=all.filter(r=>r.PMV>0.5).length, coldCount=all.filter(r=>r.PMV<-0.5).length;
-  const sumEl=document.getElementById('gbciCondSummary');
-  if(sumEl) sumEl.innerHTML=`<strong>${all.length-hotCount-coldCount} ruang</strong> nyaman &nbsp;·&nbsp; <strong style="color:var(--red)">${hotCount}</strong> terlalu panas &nbsp;·&nbsp; <strong style="color:var(--blue)">${coldCount}</strong> terlalu dingin.<br>IHC: <strong>${ihcPts}/20</strong> (${Math.round(ihcPct*100)}% nyaman) · EEC: <strong>${eecPts}/34</strong> · AC total: ${totalAC.toFixed(1)} kW`;
-  const recs = generateInsightfulRecs(states, PARAM);
+
+  // Context bar
+  var skyLabel={sunny:'Cerah',partial:'Berawan sebagian',cloudy:'Berawan',overcast:'Mendung'}[PARAM.sky]||'';
+  var hh=String(h).padStart(2,'0');
+  var scenLabel=getScenario().label;
+  setEl('gbciCtxMode','Mode '+scenLabel);
+  setEl('gbciCtxJam', hh+':00 WIB');
+  setEl('gbciCtxCuaca', PARAM.temp.toFixed(0)+'\u00b0C \u00b7 '+skyLabel);
+  var ctxLblEl=document.getElementById('gbciCtxLbl');
+  var ctxDotEl=document.getElementById('gbciCtxDot');
+  if(ctxLblEl) ctxLblEl.textContent=isPeak?'Kondisi puncak harian aktif':'Di luar jam puncak \u2014 puncak: 11:00\u201315:00';
+  if(ctxDotEl) ctxDotEl.style.background=isPeak?'var(--red)':'#639922';
+  var framingEl=document.getElementById('gbciFraming');
+  if(framingEl) framingEl.textContent=isPeak
+    ?'Skor mencerminkan performa gedung saat puncak beban harian \u2014 kondisi ini berulang hampir setiap hari kerja. Bukan hasil audit GBCI resmi; gunakan sebagai panduan operasional.'
+    :'Skor dihitung dengan bobot jam puncak 30% + non-puncak 70%. Saat jam puncak (11:00\u201315:00), skor biasanya lebih rendah. Bukan hasil audit GBCI resmi.';
+
+  // EEC
+  var eecPct=Math.round(eecPts/34*100);
+  var eecBar=document.getElementById('fillEEC');
+  if(eecBar){eecBar.style.width=eecPct+'%';eecBar.style.background=eecPts>=25?'#EF9F27':'#E24B4A';}
+  setEl('ptEEC',eecPts+'/34');
+  var diagEEC=document.getElementById('diagEEC');
+  if(diagEEC) diagEEC.innerHTML=totalAC>30
+    ?'AC bekerja sangat keras \u2014 beban total <strong>'+totalAC.toFixed(0)+' kW</strong>. Pertimbangkan mode Hemat untuk meningkatkan EEC.'
+    :totalAC>15
+    ?'Beban AC sedang \u2014 <strong>'+totalAC.toFixed(0)+' kW</strong>. Skor berfluktuasi: lebih baik pagi/sore, lebih buruk siang terik.'
+    :'Beban AC rendah \u2014 <strong>'+totalAC.toFixed(0)+' kW</strong>. Kondisi efisien saat ini.';
+
+  // IHC
+  var ihcBar=document.getElementById('fillIHC');
+  var ihcScoreEl=document.getElementById('ptIHC');
+  if(ihcBar){ihcBar.style.width=(ihcPts/20*100)+'%';ihcBar.style.background=ihcPts>=10?'#1a7a62':'#E24B4A';}
+  if(ihcScoreEl){ihcScoreEl.textContent=ihcPts+'/20';ihcScoreEl.style.color=ihcPts>=10?'var(--teal)':'var(--red)';}
+  var diagIHC=document.getElementById('diagIHC');
+  var ihcPct100=Math.round(ihcPct*100);
+  if(diagIHC) diagIHC.innerHTML=ihcPts===0
+    ?'<strong>Tidak ada ruang dalam target PMV \u00b10.5</strong> saat puncak \u2014 konsekuensi mode '+scenLabel+' di '+PARAM.temp.toFixed(0)+'\u00b0C. Di luar jam puncak, kenyamanan membaik.'
+    :ihcPct100<40
+    ?'Hanya <strong>'+ihcPct100+'% waktu operasional</strong> dalam target kenyamanan. Mode '+scenLabel+' perlu dievaluasi untuk jam puncak.'
+    :'<strong>'+ihcPct100+'% waktu operasional</strong> dalam target PMV \u00b10.5. Kenyamanan cukup terjaga.';
+
+  // Simulasi skenario
+  var scenKeys=['hemat','moderat','nyaman'];
+  var scenLabels={hemat:'\u26a1 Hemat',moderat:'\u2696 Moderat',nyaman:'\ud83c\udf3f Nyaman'};
+  var simResults={};
+  scenKeys.forEach(function(key){
+    var origKey=ACTIVE_SCENARIO; ACTIVE_SCENARIO=key;
+    var ss=Object.values(window.ROOM_REGISTRY||{}).map(function(reg){return computeRoomState(reg,PARAM);});
+    ACTIVE_SCENARIO=origKey;
+    var tAC=ss.reduce(function(s,r){return s+r.acLoad;},0);
+    var iP=ss.filter(function(r){return Math.abs(r.PMV)<=0.5;}).length/Math.max(1,ss.length);
+    simResults[key]={eec:Math.round(Math.max(10,34*(1-tAC/(ss.length*2.5)))),ihc:Math.round(iP*20)};
+  });
+
+  function simPills(field,current){
+    return scenKeys.map(function(key){
+      var v=simResults[key][field];
+      var max=field==='eec'?34:20;
+      var cls=v>current?'better':v<current?'worse':'neutral';
+      var act=key===ACTIVE_SCENARIO?' (aktif)':'';
+      return '<span class="gbci-pill '+cls+'">'+scenLabels[key]+act+' \u2192 '+v+'/'+max+'</span>';
+    }).join('');
+  }
+  var simEECEl=document.getElementById('simEEC'); if(simEECEl) simEECEl.innerHTML=simPills('eec',eecPts);
+  var simIHCEl=document.getElementById('simIHC'); if(simIHCEl) simIHCEl.innerHTML=simPills('ihc',ihcPts);
+
+  // Keputusan operasional — hanya EEC & IHC
+  var bestIHCkey=scenKeys.reduce(function(a,k){return simResults[k].ihc>simResults[a].ihc?k:a;},'hemat');
+  var bestEECkey=scenKeys.reduce(function(a,k){return simResults[k].eec>simResults[a].eec?k:a;},'hemat');
+  var decisions=[];
+
+  if(bestIHCkey!==ACTIVE_SCENARIO && simResults[bestIHCkey].ihc>ihcPts){
+    var ig=simResults[bestIHCkey].ihc-ihcPts;
+    var el=Math.max(0,eecPts-simResults[bestIHCkey].eec);
+    var net=ig-el;
+    decisions.push({num:1,bg:'#FCEBEB',tc:'#A32D2D',tag:'IHC',tagBg:'#FCEBEB',
+      title:'Ganti ke mode '+SCENARIOS[bestIHCkey].label+' untuk kenyamanan optimal',
+      desc:'IHC naik dari '+ihcPts+'/20 ke '+simResults[bestIHCkey].ihc+'/20. '+(el>0?'Trade-off: EEC turun '+el+' poin. Net gain: +'+net+' poin.':'Tanpa trade-off EEC.'),
+      impact:'+'+ig+' poin IHC \u00b7 net +'+net+' poin \u00b7 berlaku langsung'});
+  }
+  if(bestEECkey!==ACTIVE_SCENARIO && simResults[bestEECkey].eec>eecPts){
+    var eg=simResults[bestEECkey].eec-eecPts;
+    var il=Math.max(0,ihcPts-simResults[bestEECkey].ihc);
+    var net2=eg-il;
+    decisions.push({num:decisions.length+1,bg:'#FAEEDA',tc:'#854F0B',tag:'EEC',tagBg:'#FAEEDA',
+      title:'Ganti ke mode '+SCENARIOS[bestEECkey].label+' untuk efisiensi energi',
+      desc:'EEC naik dari '+eecPts+'/34 ke '+simResults[bestEECkey].eec+'/34. '+(il>0?'Trade-off: IHC turun '+il+' poin. Net gain: +'+net2+' poin.':'Tanpa trade-off IHC.'),
+      impact:'+'+eg+' poin EEC \u00b7 net +'+net2+' poin \u00b7 berlaku langsung'});
+  }
+  if(!decisions.length){
+    decisions.push({num:1,bg:'#e0f4ef',tc:'#0d4d3c',tag:'OK',tagBg:'#e0f4ef',
+      title:'Mode '+scenLabel+' sudah optimal untuk kondisi ini',
+      desc:'EEC '+eecPts+'/34 \u00b7 IHC '+ihcPts+'/20. Tidak ada skenario lain yang memberikan net gain lebih baik.',
+      impact:'Pertahankan mode ini \u00b7 evaluasi ulang saat kondisi berubah'});
+  }
+
+  var decHtml=decisions.map(function(d){
+    return '<div class="gbci-dec-item">'
+      +'<div class="gbci-dec-num" style="background:'+d.bg+';color:'+d.tc+'">'+d.num+'</div>'
+      +'<div class="gbci-dec-body"><div class="gbci-dec-ttl">'+d.title+'</div>'
+      +'<div class="gbci-dec-desc">'+d.desc+'</div>'
+      +'<div class="gbci-dec-impact">'+d.impact+'</div></div>'
+      +'<div class="gbci-dec-tag" style="background:'+d.tagBg+';color:'+d.tc+'">'+d.tag+'</div>'
+      +'</div>';
+  }).join('');
+  var decList=document.getElementById('gbciDecList');
+  if(decList) decList.innerHTML=decHtml;
+
+  // Mode impact bar
+  var impEECEl=document.getElementById('impEEC'); if(impEECEl) impEECEl.textContent=eecPts+'/34';
+  var impIHCEl=document.getElementById('impIHC'); if(impIHCEl) impIHCEl.textContent=ihcPts+'/20';
+
+  var recs=generateInsightfulRecs(states,PARAM);
   renderInsightRecs(recs);
 }
 
