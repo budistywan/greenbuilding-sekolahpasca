@@ -363,7 +363,56 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 .legend-sw { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 .legend-ln { width: 16px; height: 2px; flex-shrink: 0; }
 
-/* Mini card ruang aktif */
+/* Insight recommendation cards */
+.insight-card {
+  background: var(--white);
+  border: 0.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: start;
+}
+.insight-card.priority-high { border-left: 3px solid var(--red); border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+.insight-card.priority-med  { border-left: 3px solid var(--gold); border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+.insight-card.priority-low  { border-left: 3px solid var(--teal); border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+.insight-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.insight-body { min-width: 0; }
+.insight-headline {
+  font-size: 13px; font-weight: 500; color: var(--ink);
+  margin-bottom: 6px; line-height: 1.4;
+}
+.insight-reasoning {
+  font-size: 12px; color: var(--gray); line-height: 1.65;
+  margin-bottom: 8px;
+}
+.insight-reasoning strong { color: var(--ink); font-weight: 500; }
+.insight-action {
+  font-size: 11px; font-weight: 500;
+  padding: 6px 12px; border-radius: var(--r);
+  display: inline-block; margin-bottom: 6px;
+}
+.insight-impact {
+  font-size: 10px; color: var(--gray);
+  font-family: var(--font-m);
+}
+.insight-meta {
+  display: flex; flex-direction: column; gap: 4px;
+  align-items: flex-end; flex-shrink: 0; min-width: 80px;
+}
+.insight-tag {
+  font-size: 9px; font-weight: 500; letter-spacing: .06em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 10px;
+}
+.insight-time {
+  font-size: 10px; color: var(--gray);
+  font-family: var(--font-m); text-align: right;
+}
 .room-mini {
   background: var(--white);
   border: 0.5px solid var(--border);
@@ -900,11 +949,21 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
         </div>
         <div class="gap-box" id="gbciGapBox">Gap ke Gold: <strong>13 poin</strong></div>
       </div>
-      <div class="card">
-        <div class="c-title">Rekomendasi dinamis <span class="c-tag">dari kondisi jam aktif</span></div>
-        <ul class="rec-list" id="dynamicRec"></ul>
+      <div class="card" style="display:flex;flex-direction:column;gap:6px">
+        <div class="c-title">Ringkasan kondisi IHC &amp; EEC</div>
+        <div id="gbciCondSummary" style="font-size:12px;color:var(--gray);line-height:1.7">—</div>
       </div>
     </div>
+  </div>
+
+  <!-- LAYER 6: Rekomendasi Insightful -->
+  <div class="dash-header" style="margin-top:8px">
+    <span class="dash-title">Rekomendasi operasional</span>
+    <div class="dash-rule"></div>
+    <span class="dash-tag" id="recCount">—</span>
+  </div>
+  <div class="dash-body">
+    <div id="insightRecGrid" style="display:flex;flex-direction:column;gap:10px"></div>
   </div>
 
 </section>
@@ -1942,23 +2001,131 @@ function updateGBCI(states) {
   document.getElementById('ptEEC').textContent=eecPts+'/34';
   document.getElementById('fillIHC').style.width=(ihcPts/20*100)+'%';
   document.getElementById('ptIHC').textContent=ihcPts+'/20';
-  const hotRooms  = all.filter(r=>r.PMV>1.0).sort((a,b)=>b.PMV-a.PMV).slice(0,3);
-  const borosRooms= all.filter(r=>r.acLoad>1.5).sort((a,b)=>b.acLoad-a.acLoad).slice(0,2);
-  const recEl = document.getElementById('dynamicRec'); if (!recEl) return;
-  let html='';
-  if (hotRooms.length) html+=`<li class="rec-item"><div class="rec-dot" style="background:#b83232"></div>
-    <span class="rec-cat" style="background:#fceaea;color:#6e1a1a">IHC</span>
-    <div><div class="rec-text">${hotRooms.map(r=>`${r.gedung}-L${r.lantai} ${r.nama} (PMV ${r.PMV>=0?'+':''}${r.PMV.toFixed(2)})`).join(', ')}</div>
-    <div class="rec-pt">Tingkatkan ACH atau periksa kapasitas AC</div></div></li>`;
-  if (borosRooms.length) html+=`<li class="rec-item"><div class="rec-dot" style="background:#c8922a"></div>
-    <span class="rec-cat" style="background:#fdf3e0;color:#7a5510">EEC</span>
-    <div><div class="rec-text">${borosRooms.map(r=>`${r.gedung}-L${r.lantai} ${r.nama} (${r.acLoad.toFixed(1)} kW)`).join(', ')} — beban AC tinggi</div>
-    <div class="rec-pt">Pertimbangkan AC scheduling saat okupansi rendah</div></div></li>`;
-  html+=`<li class="rec-item"><div class="rec-dot" style="background:#888580"></div>
-    <span class="rec-cat" style="background:#f0ede8;color:#444441">BEM</span>
-    <div><div class="rec-text">Commissioning log &amp; green procurement belum lengkap</div>
-    <div class="rec-pt">Estimasi +5 poin · 1 bulan dokumentasi</div></div></li>`;
-  recEl.innerHTML = html;
+  const hotCount=all.filter(r=>r.PMV>0.5).length, coldCount=all.filter(r=>r.PMV<-0.5).length;
+  const sumEl=document.getElementById('gbciCondSummary');
+  if(sumEl) sumEl.innerHTML=`<strong>${all.length-hotCount-coldCount} ruang</strong> nyaman &nbsp;·&nbsp; <strong style="color:var(--red)">${hotCount}</strong> terlalu panas &nbsp;·&nbsp; <strong style="color:var(--blue)">${coldCount}</strong> terlalu dingin.<br>IHC: <strong>${ihcPts}/20</strong> (${Math.round(ihcPct*100)}% nyaman) · EEC: <strong>${eecPts}/34</strong> · AC total: ${totalAC.toFixed(1)} kW`;
+  const recs = generateInsightfulRecs(states, PARAM);
+  renderInsightRecs(recs);
+}
+
+function hoursUntilNextUse(tipe, h) {
+  const j=JADWAL[tipe]||JADWAL.kuliah;
+  for(let i=h+1;i<24;i++) if((j[i]||0)>0.1) return i-h;
+  return null;
+}
+function hoursRemainingUse(tipe, h) {
+  const j=JADWAL[tipe]||JADWAL.kuliah;
+  if((j[h]||0)<0.1) return 0;
+  let last=h;
+  for(let i=h+1;i<24;i++){if((j[i]||0)>0.1)last=i;else break;}
+  return last-h;
+}
+function projectedOcc(tipe, h, ahead) {
+  const j=JADWAL[tipe]||JADWAL.kuliah;
+  const vals=[];
+  for(let i=1;i<=ahead;i++) vals.push(j[Math.min(23,h+i)]||0);
+  return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0;
+}
+function dominantHeat(r) {
+  if(r.dtSolar>r.dtOrang*1.5) return 'solar';
+  if(r.dtOrang>r.dtSolar*1.5) return 'orang';
+  return 'mixed';
+}
+
+function generateInsightfulRecs(states, param) {
+  const h=Math.floor(param.hourMin/60);
+  const recs=[];
+  const seen=new Set();
+  Object.values(states).forEach(r=>{
+    const tipe=r.tipe||'kuliah';
+    const remaining=hoursRemainingUse(tipe,h);
+    const untilNext=hoursUntilNextUse(tipe,h);
+    const projOcc3=projectedOcc(tipe,h,3);
+    const dom=dominantHeat(r);
+    const occPct=Math.round(r.okkPct*100);
+    const isActive=r.orang>0;
+    const nextHour=h+(untilNext||0);
+
+    if(r.PMV>0.8&&isActive&&dom==='orang'&&r.okkPct>0.5&&!seen.has(r.id)){
+      seen.add(r.id);
+      const vg=Math.round((r.PMV-0.5)*0.3*10)/10;
+      const as=Math.round(r.acLoad*0.15*10)/10;
+      recs.push({id:r.id,priority:r.PMV>1.5?'high':'med',icon:'🌀',iconBg:'#fceaea',tag:'IHC',tagBg:'#fceaea',tagColor:'#6e1a1a',
+        headline:`${r.gedung}-L${r.lantai} ${r.nama} — panas karena kepadatan, bukan solar`,
+        reasoning:`Ruang terisi <strong>${r.orang}/${r.kapasitas} orang (${occPct}%)</strong>, beban metabolik +${r.dtOrang.toFixed(1)}°C dominan vs solar +${r.dtSolar.toFixed(1)}°C. PMV <strong>${r.PMV>=0?'+':''} ${r.PMV.toFixed(2)}</strong>. Menurunkan setpoint AC menambah konsumsi tanpa mengatasi sumber panas. ${remaining>0?`Masih dipakai <strong>${remaining} jam</strong> ke depan, proyeksi okupansi ${Math.round(projOcc3*100)}%.`:'Segera kosong.'}`,
+        action:`Tingkatkan ACH +30% (suplai udara segar) — jangan turunkan setpoint`,
+        impact:`PMV proyeksi −${vg.toFixed(1)} · hemat ${as.toFixed(1)} kW vs turunkan setpoint`,
+        timeCtx:remaining>0?`Aktif ${remaining} jam lagi`:'Segera kosong',pord:r.PMV});
+    }
+
+    if(r.PMV>0.8&&isActive&&dom==='solar'&&r.dtSolar>1.5&&!seen.has(r.id)){
+      seen.add(r.id);
+      const sg=Math.round(r.dtSolar*0.6*10)/10;
+      recs.push({id:r.id,priority:r.PMV>1.5?'high':'med',icon:'☀',iconBg:'#fdf3e0',tag:'IHC+EEC',tagBg:'#fdf3e0',tagColor:'#7a5510',
+        headline:`${r.gedung}-L${r.lantai} ${r.nama} — solar load tinggi dari fasad ${(r.windowFacing||[]).join('+')}`,
+        reasoning:`Jendela menghadap <strong>${(r.windowFacing||[]).join(', ')}</strong> berkontribusi +${r.dtSolar.toFixed(1)}°C. Beban orang +${r.dtOrang.toFixed(1)}°C. PMV <strong>${r.PMV>=0?'+':''} ${r.PMV.toFixed(2)}</strong>. Sumber panas dari fasad — menurunkan setpoint tidak efisien. ${remaining>0?`Kondisi berlangsung <strong>${remaining} jam</strong> lagi.`:''}\`,
+        action:\`Aktifkan tirai/blind sisi ${(r.windowFacing||[]).join('+')} — reduksi solar load hingga 60%\`,
+        impact:\`PMV proyeksi −${sg.toFixed(1)} · hemat ${Math.round(sg*0.3*10)/10} kW AC\`,
+        timeCtx:remaining>0?\`Solar aktif ~${remaining} jam\`:'Akhir paparan',pord:r.PMV});
+    }
+
+    if(r.PMV<-0.5&&r.acLoad>0.5&&(!isActive||r.okkPct<0.2)&&!seen.has(r.id)){
+      seen.add(r.id);
+      const wk=Math.round(r.acLoad*0.7*10)/10;
+      recs.push({id:r.id,priority:r.acLoad>1.0?'med':'low',icon:'❄',iconBg:'#e8f0fb',tag:'EEC',tagBg:'#e8f0fb',tagColor:'#0d3566',
+        headline:`${r.gedung}-L${r.lantai} ${r.nama} — AC over-cooling ruang ${isActive?'hampir kosong':'kosong'}`,
+        reasoning:`Hanya <strong>${isActive?r.orang+' orang ('+occPct+'%)':'kosong'}</strong>, PMV <strong>${r.PMV.toFixed(2)}</strong>. ${untilNext?`Penggunaan berikutnya <strong>${untilNext} jam lagi</strong> (jam ${String(nextHour).padStart(2,'0')}:00) proyeksi ${Math.round(projOcc3*100)}% kapasitas.`:'Tidak ada jadwal lagi hari ini.'} Energi ${wk.toFixed(1)} kW terbuang sia-sia.`,
+        action:untilNext&&untilNext<=2?`Naikkan setpoint ke 28°C, pre-cool 30 mnt sebelum jam ${String(nextHour).padStart(2,'0')}:00`:untilNext?`Matikan AC, nyalakan ${untilNext-1} jam sebelum jam ${String(nextHour).padStart(2,'0')}:00`:'Matikan AC — tidak ada jadwal lagi',
+        impact:`Hemat ~${wk.toFixed(1)} kW${untilNext?\` · nyaman saat jam ${String(nextHour).padStart(2,'0')}:00\`:''}\`,
+        timeCtx:untilNext?\`Pakai lagi ${untilNext} jam':'Tidak dipakai lagi',pord:r.acLoad});
+    }
+
+    if(!isActive&&untilNext&&untilNext<=2&&projOcc3>0.6&&!seen.has(r.id+'_pc')){
+      seen.add(r.id+'_pc');
+      const expPMV=Math.max(0,((26+projOcc3*(r.kapasitas||20)*0.06+(r.dtSolar||0))-24)*0.3);
+      if(expPMV>0.6) recs.push({id:r.id+'_pc',priority:'med',icon:'⏱',iconBg:'#e0f4ef',tag:'IHC+EEC',tagBg:'#e0f4ef',tagColor:'#0d4d3c',
+        headline:`${r.gedung}-L${r.lantai} ${r.nama} — window pre-cooling sebelum kelas jam ${String(nextHour).padStart(2,'0')}:00`,
+        reasoning:`Ruang kosong, <strong>${untilNext} jam lagi</strong> akan diisi ~<strong>${Math.round(projOcc3*(r.kapasitas||20))} orang (${Math.round(projOcc3*100)}%)</strong>. Tanpa pre-cooling PMV awal sesi <strong>+${expPMV.toFixed(2)}</strong> — tidak nyaman sejak menit pertama. Pre-cooling sekarang 25% lebih efisien vs reaktif.`,
+        action:`Mulai pendinginan ke 22°C sekarang — naikkan ke 24°C saat orang masuk jam ${String(nextHour).padStart(2,'0')}:00`,
+        impact:`PMV awal sesi +${Math.max(0,expPMV-0.4).toFixed(2)} → +0.1 · 25% lebih efisien`,
+        timeCtx:`${untilNext} jam sebelum kelas`,pord:projOcc3});
+    }
+
+    if(isActive&&r.acLoad>1.2&&r.okkPct<0.3&&remaining>1&&!seen.has(r.id+'_lo')){
+      seen.add(r.id+'_lo');
+      const sk=Math.round(r.acLoad*0.35*10)/10;
+      recs.push({id:r.id+'_lo',priority:'low',icon:'📊',iconBg:'#f0ede8',tag:'EEC',tagBg:'#f0ede8',tagColor:'#444441',
+        headline:`${r.gedung}-L${r.lantai} ${r.nama} — AC penuh untuk ${occPct}% kapasitas`,
+        reasoning:`Hanya <strong>${r.orang}/${r.kapasitas} orang</strong> (${occPct}%), AC ${r.acLoad.toFixed(1)} kW. Masih <strong>${remaining} jam</strong> tersisa. Proyeksi 3 jam: ${Math.round(projOcc3*100)}% — ${projOcc3>0.5?'akan ramai':'tetap rendah'}.`,
+        action:projOcc3>0.5?'Pertahankan setpoint — konsolidasi penghuni ke area tertentu':`Naikkan setpoint ke 26°C — proyeksi hunian tetap rendah (${Math.round(projOcc3*100)}%)`,
+        impact:`Hemat ~${sk.toFixed(1)} kW · PMV tetap ±0.5`,
+        timeCtx:`Aktif ${remaining} jam lagi`,pord:r.acLoad/Math.max(0.1,r.okkPct)});
+    }
+  });
+  const pOrd={high:3,med:2,low:1};
+  return recs.sort((a,b)=>(pOrd[b.priority]||0)-(pOrd[a.priority]||0)||b.pord-a.pord).slice(0,8);
+}
+
+function renderInsightRecs(recs) {
+  const el=document.getElementById('insightRecGrid');
+  const cEl=document.getElementById('recCount');
+  if(!el) return;
+  if(cEl){const hi=recs.filter(r=>r.priority==='high').length;cEl.textContent=`${recs.length} rekomendasi${hi>0?' · '+hi+' prioritas tinggi':''}`;}
+  if(!recs.length){el.innerHTML='<div class="card" style="text-align:center;padding:24px;color:var(--gray);font-size:13px">✓ Kondisi gedung dalam parameter normal pada jam ini.</div>';return;}
+  el.innerHTML=recs.map(r=>`<div class="insight-card priority-${r.priority}">
+    <div class="insight-icon" style="background:${r.iconBg}">${r.icon}</div>
+    <div class="insight-body">
+      <div class="insight-headline">${r.headline}</div>
+      <div class="insight-reasoning">${r.reasoning}</div>
+      <div class="insight-action" style="background:${r.iconBg};color:${r.tagColor}">→ ${r.action}</div>
+      <div class="insight-impact">Dampak estimasi: ${r.impact}</div>
+    </div>
+    <div class="insight-meta">
+      <span class="insight-tag" style="background:${r.tagBg};color:${r.tagColor}">${r.tag}</span>
+      <span class="insight-time">${r.timeCtx}</span>
+      <span class="insight-time" style="margin-top:2px">${r.priority==='high'?'⚠ Segera':r.priority==='med'?'· Disarankan':'· Opsional'}</span>
+    </div>
+  </div>`).join('');
 }
 
 function initCharts() {
