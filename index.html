@@ -308,6 +308,120 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 .legend-sw { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 .legend-ln { width: 16px; height: 2px; flex-shrink: 0; }
 
+/* ── PARAMETER PANEL ── */
+#param-section { background: var(--ink2); border-top: 1px solid rgba(255,255,255,0.06); }
+
+#param-toggle {
+  width: 100%; padding: 18px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; border: none; background: transparent;
+  color: #e8e6e1; font-family: var(--font-b);
+  transition: background .15s;
+}
+#param-toggle:hover { background: rgba(255,255,255,0.03); }
+.param-toggle-left { display: flex; align-items: center; gap: 14px; }
+.param-toggle-eyebrow {
+  font-size: 9px; font-weight: 500; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--gold);
+}
+.param-toggle-title { font-family: var(--font-d); font-size: 18px; color: #f0ede8; }
+.param-toggle-sub { font-size: 11px; color: rgba(240,237,232,0.4); font-weight: 300; margin-top: 1px; }
+.param-chevron {
+  font-size: 18px; color: rgba(240,237,232,0.4);
+  transition: transform .3s ease;
+}
+.param-chevron.open { transform: rotate(180deg); }
+
+#param-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .45s ease;
+}
+#param-body.open { max-height: 700px; }
+
+#param-inner { padding: 0 28px 28px; }
+
+/* KPI cards dalam parameter */
+.param-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.param-kpi {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  position: relative; overflow: hidden;
+}
+.param-kpi::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.pk-time::before   { background: var(--gold); }
+.pk-temp::before   { background: #e05a2b; }
+.pk-humid::before  { background: var(--blue); }
+.pk-wind::before   { background: var(--teal); }
+.pk-sky::before    { background: #7f77dd; }
+.pk-uv::before     { background: #c8922a; }
+.param-kpi-lbl { font-size: 9px; color: rgba(240,237,232,0.4); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 5px; }
+.param-kpi-val { font-family: var(--font-m); font-size: 20px; font-weight: 500; color: #f0ede8; line-height: 1; }
+.param-kpi-val small { font-size: 11px; font-weight: 300; color: rgba(240,237,232,0.45); }
+.param-kpi-sub { font-size: 10px; color: rgba(240,237,232,0.35); margin-top: 3px; }
+
+/* Slider grid */
+.param-sliders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 32px;
+  margin-bottom: 20px;
+}
+.param-slider-row { display: flex; flex-direction: column; gap: 6px; }
+.param-slider-label {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.param-slider-name { font-size: 11px; color: rgba(240,237,232,0.55); font-weight: 400; }
+.param-slider-readout { font-family: var(--font-m); font-size: 13px; font-weight: 500; color: #e8c87a; }
+input[type=range].param-range { width: 100%; accent-color: var(--gold); }
+
+/* Preset buttons */
+.param-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.preset-btn {
+  padding: 5px 14px; font-size: 10px; font-weight: 500; letter-spacing: .04em;
+  font-family: var(--font-b); border-radius: 20px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05); color: rgba(240,237,232,0.7);
+  transition: all .15s;
+}
+.preset-btn:hover { background: rgba(255,255,255,0.12); color: #f0ede8; }
+.preset-btn.active { background: rgba(200,146,42,0.2); border-color: rgba(200,146,42,0.5); color: var(--gold); }
+
+/* Sky selector */
+.sky-btns { display: flex; gap: 6px; margin-top: 4px; }
+.sky-btn {
+  flex: 1; padding: 6px; font-size: 10px; font-family: var(--font-b);
+  border-radius: 6px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05); color: rgba(240,237,232,0.6);
+  transition: all .15s; text-align: center;
+}
+.sky-btn:hover { background: rgba(255,255,255,0.10); }
+.sky-btn.active { background: rgba(127,119,221,0.25); border-color: rgba(127,119,221,0.5); color: #b5b0f5; }
+
+/* Live update badge */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9px; color: var(--teal); letter-spacing: .06em; text-transform: uppercase;
+  margin-left: auto;
+}
+.live-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--teal);
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+@keyframes livePulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
 /* Footer */
 .footer {
   background: var(--ink); color: rgba(240,237,232,0.4);
@@ -362,7 +476,144 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 </section>
 
 <!-- ══════════════════════════════════════════
-     SECTION 2 — TRANSITION STRIP
+     SECTION 2 — PARAMETER LUAR RUANG
+══════════════════════════════════════════ -->
+<section id="param-section">
+
+  <!-- Toggle header -->
+  <button id="param-toggle" onclick="toggleParam()">
+    <div class="param-toggle-left">
+      <div>
+        <div class="param-toggle-eyebrow">Kondisi Outdoor · Live Update</div>
+        <div class="param-toggle-title">Parameter Luar Ruang</div>
+        <div class="param-toggle-sub">Suhu · Kelembaban · Angin · Kondisi langit · Waktu — mempengaruhi indeks komposit per ruang</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+      <div class="param-chevron" id="paramChevron">▾</div>
+    </div>
+  </button>
+
+  <!-- Expandable body -->
+  <div id="param-body">
+    <div id="param-inner">
+
+      <!-- KPI Cards -->
+      <div class="param-kpi-grid">
+        <div class="param-kpi pk-time">
+          <div class="param-kpi-lbl">Waktu</div>
+          <div class="param-kpi-val" id="kpi-time">09:00</div>
+          <div class="param-kpi-sub" id="kpi-sky-label">Pagi cerah</div>
+        </div>
+        <div class="param-kpi pk-temp">
+          <div class="param-kpi-lbl">Suhu Outdoor</div>
+          <div class="param-kpi-val" id="kpi-temp">29.0 <small>°C</small></div>
+          <div class="param-kpi-sub" id="kpi-temp-feel">Terasa panas</div>
+        </div>
+        <div class="param-kpi pk-humid">
+          <div class="param-kpi-lbl">Kelembaban</div>
+          <div class="param-kpi-val" id="kpi-humid">72 <small>%</small></div>
+          <div class="param-kpi-sub">RH · nyaman &lt;70%</div>
+        </div>
+        <div class="param-kpi pk-wind">
+          <div class="param-kpi-lbl">Kec. Angin</div>
+          <div class="param-kpi-val" id="kpi-wind">2.0 <small>m/s</small></div>
+          <div class="param-kpi-sub" id="kpi-wind-feel">Semilir</div>
+        </div>
+        <div class="param-kpi pk-sky">
+          <div class="param-kpi-lbl">Kondisi Langit</div>
+          <div class="param-kpi-val" id="kpi-sky" style="font-size:14px">Cerah</div>
+          <div class="param-kpi-sub" id="kpi-sky-mult">Solar mult: 1.0×</div>
+        </div>
+        <div class="param-kpi pk-uv">
+          <div class="param-kpi-lbl">UV Index</div>
+          <div class="param-kpi-val" id="kpi-uv">6</div>
+          <div class="param-kpi-sub" id="kpi-uv-label">Tinggi</div>
+        </div>
+      </div>
+
+      <!-- Preset -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:9px;color:rgba(240,237,232,0.35);letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px">Preset skenario</div>
+        <div class="param-presets">
+          <button class="preset-btn active" data-preset="morning" onclick="applyPreset(this,'morning')">☀ Pagi (07:00)</button>
+          <button class="preset-btn" data-preset="noon"    onclick="applyPreset(this,'noon')">☀ Siang terik (13:00)</button>
+          <button class="preset-btn" data-preset="evening" onclick="applyPreset(this,'evening')">◑ Sore (16:00)</button>
+          <button class="preset-btn" data-preset="solstice_jun" onclick="applyPreset(this,'solstice_jun')">Solstis Jun</button>
+          <button class="preset-btn" data-preset="solstice_dec" onclick="applyPreset(this,'solstice_dec')">Solstis Des</button>
+          <button class="preset-btn" data-preset="overcast" onclick="applyPreset(this,'overcast')">⛅ Mendung</button>
+        </div>
+      </div>
+
+      <!-- Sliders -->
+      <div class="param-sliders">
+        <div class="param-slider-row">
+          <div class="param-slider-label">
+            <span class="param-slider-name">Jam (WIB)</span>
+            <span class="param-slider-readout" id="out-hour">09:00</span>
+          </div>
+          <input type="range" class="param-range" id="sl-hour" min="0" max="1439" value="540" step="15"
+            oninput="onParamChange()">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);margin-top:2px">
+            <span>00:00</span><span>Terbit ~05:48</span><span>Puncak ~11:50</span><span>Benam ~17:52</span><span>24:00</span>
+          </div>
+        </div>
+
+        <div class="param-slider-row">
+          <div class="param-slider-label">
+            <span class="param-slider-name">Suhu outdoor (°C)</span>
+            <span class="param-slider-readout" id="out-temp">29.0°C</span>
+          </div>
+          <input type="range" class="param-range" id="sl-temp" min="20" max="40" value="29" step="0.5"
+            oninput="onParamChange()">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);margin-top:2px">
+            <span>20°C</span><span>Nyaman 24–28°C</span><span>40°C</span>
+          </div>
+        </div>
+
+        <div class="param-slider-row">
+          <div class="param-slider-label">
+            <span class="param-slider-name">Kelembaban (%RH)</span>
+            <span class="param-slider-readout" id="out-humid">72%</span>
+          </div>
+          <input type="range" class="param-range" id="sl-humid" min="40" max="100" value="72" step="1"
+            oninput="onParamChange()">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);margin-top:2px">
+            <span>40%</span><span>Target &lt;70%</span><span>100%</span>
+          </div>
+        </div>
+
+        <div class="param-slider-row">
+          <div class="param-slider-label">
+            <span class="param-slider-name">Kecepatan angin (m/s)</span>
+            <span class="param-slider-readout" id="out-wind">2.0 m/s</span>
+          </div>
+          <input type="range" class="param-range" id="sl-wind" min="0" max="10" value="2" step="0.5"
+            oninput="onParamChange()">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);margin-top:2px">
+            <span>Tenang</span><span>Semilir 2–4 m/s</span><span>Kencang</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sky condition -->
+      <div>
+        <div style="font-size:9px;color:rgba(240,237,232,0.35);letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px">Kondisi langit</div>
+        <div class="sky-btns">
+          <button class="sky-btn active" id="sky-sunny"   onclick="setSky('sunny',this)">☀ Cerah<br><span style="font-size:9px;opacity:.6">Solar 1.0×</span></button>
+          <button class="sky-btn"        id="sky-partial" onclick="setSky('partial',this)">⛅ Berawan sebagian<br><span style="font-size:9px;opacity:.6">Solar 0.6×</span></button>
+          <button class="sky-btn"        id="sky-cloudy"  onclick="setSky('cloudy',this)">☁ Berawan<br><span style="font-size:9px;opacity:.6">Solar 0.3×</span></button>
+          <button class="sky-btn"        id="sky-overcast" onclick="setSky('overcast',this)">🌧 Mendung/hujan<br><span style="font-size:9px;opacity:.6">Solar 0.1×</span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION 3 — TRANSITION STRIP
 ══════════════════════════════════════════ -->
 <div class="strip">
   <div class="strip-text">
@@ -1136,6 +1387,201 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
       }}
   });
 })();
+</script>
+
+<!-- ══════════════════════════════════════════
+     PARAMETER ENGINE
+══════════════════════════════════════════ -->
+<script>
+/* ── State ── */
+const PARAM = {
+  hourMin: 540,    // 09:00
+  temp:    29,
+  humid:   72,
+  wind:    2,
+  sky:     'sunny',  // sunny | partial | cloudy | overcast
+};
+
+const SKY_MULT   = { sunny:1.0, partial:0.6, cloudy:0.3, overcast:0.1 };
+const SKY_LABEL  = { sunny:'Cerah', partial:'Berawan sebagian', cloudy:'Berawan', overcast:'Mendung/hujan' };
+const SKY_MULT_S = { sunny:'Solar 1.0×', partial:'Solar 0.6×', cloudy:'Solar 0.3×', overcast:'Solar 0.1×' };
+
+/* ── Presets ── */
+const PRESETS = {
+  morning:      { hourMin:7*60,    temp:27,  humid:78, wind:1.5, sky:'sunny'   },
+  noon:         { hourMin:13*60,   temp:34,  humid:65, wind:2.5, sky:'sunny'   },
+  evening:      { hourMin:16*60,   temp:31,  humid:70, wind:3.0, sky:'partial' },
+  solstice_jun: { hourMin:10*60,   temp:28,  humid:82, wind:1.0, sky:'partial' },
+  solstice_dec: { hourMin:12*60,   temp:33,  humid:68, wind:2.0, sky:'sunny'   },
+  overcast:     { hourMin:9*60,    temp:26,  humid:88, wind:1.0, sky:'overcast' },
+};
+
+/* ── Solar direction model
+   Semarang -6.99°LS: matahari bergerak T→TL→N→BL→B
+   Terbit ~05:48, puncak ~11:50 (sedikit ke utara), benam ~17:52
+   Fungsi mengembalikan arah cardinal aktif per jam ── */
+function activeSolarDirections(hourMin) {
+  const h = hourMin / 60;
+  if (h < 5.8 || h > 17.87) return [];       // malam
+  if (h < 7)   return ["E","NE"];             // fajar
+  if (h < 9)   return ["E","NE","N"];         // pagi
+  if (h < 12)  return ["N","NE","NW"];        // siang menjelang puncak
+  if (h < 14)  return ["N","NW","W"];         // siang setelah puncak
+  if (h < 16)  return ["W","NW"];             // sore awal
+  if (h < 18)  return ["W","SW"];             // sore akhir
+  return [];
+}
+
+/* ── Compute adjusted index per ruang ── */
+function computeAdjustedIndex(reg, param) {
+  const base   = reg.index;
+  const active = activeSolarDirections(param.hourMin);
+  const mult   = SKY_MULT[param.sky];
+
+  // Solar penalty: ruang dengan jendela menghadap arah matahari aktif
+  let solarPenalty = 0;
+  if (reg.hasWindow && active.length > 0) {
+    const hit = (reg.windowFacing||[]).filter(f => active.includes(f)).length;
+    if (hit > 0) solarPenalty = 0.12 * mult * (hit / reg.windowFacing.length);
+  }
+
+  // Temp penalty: di atas 28°C mulai membebani
+  const tempPenalty = param.temp > 28 ? Math.min(0.15, (param.temp - 28) * 0.012) : 0;
+
+  // Humid penalty: di atas 75% RH
+  const humidPenalty = param.humid > 75 ? Math.min(0.10, (param.humid - 75) * 0.004) : 0;
+
+  // Wind bonus: konveksi fasad untuk ruang yang punya jendela
+  const windBonus = reg.hasWindow && param.wind >= 2 ? Math.min(0.06, (param.wind - 2) * 0.015) : 0;
+
+  const adjusted = base - solarPenalty - tempPenalty - humidPenalty + windBonus;
+  return Math.max(0.05, Math.min(1.0, adjusted));
+}
+
+/* ── Color dari index (duplikasi dari Cesium script, dipakai pure JS) ── */
+function indexToColorRgba(v) {
+  if (v < .4)  { const t=v/.4; return `rgba(${Math.round((184+20*t))},${Math.round(30+20*t)},${Math.round(30+20*t)},0.88)`; }
+  if (v < .65) { const t=(v-.4)/.25; return `rgba(${Math.round(199+13*t)},${Math.round(140+13*t)},${Math.round(25+15*t)},0.85)`; }
+  const t=(v-.65)/.35; return `rgba(${Math.round(20+13*t)},${Math.round(115+26*t)},${Math.round(92+31*t)},0.82)`;
+}
+function indexToLabel(v) { return v<.4?"Alert":v<.65?"Review":"OK"; }
+
+/* ── Update Cesium room colors ── */
+function updateCesiumColors() {
+  if (typeof ROOM_REGISTRY === 'undefined' || typeof allRooms === 'undefined') return;
+  allRooms.forEach(ent => {
+    const rid = ent.properties?.__id?.getValue?.() ?? ent.properties?.__id;
+    if (!rid) return;
+    const reg = ROOM_REGISTRY[rid];
+    if (!reg) return;
+    // Jangan update yang sedang di-select/hover
+    if (ent === window._selEnt || ent === window._hovEnt) return;
+    const adj = computeAdjustedIndex(reg, PARAM);
+    // Update material Cesium
+    const c = adj < .4
+      ? new Cesium.Color((184+20*(adj/.4))/255, (30+20*(adj/.4))/255, (30+20*(adj/.4))/255, .88)
+      : adj < .65
+        ? new Cesium.Color(.78,.55,.10,.85)
+        : new Cesium.Color(.08+.05*((adj-.65)/.35), .45+.10*((adj-.65)/.35), .36+.12*((adj-.65)/.35), .82);
+    ent.polygon.material = c;
+  });
+}
+
+/* ── UV index model ── */
+function calcUV(hourMin, sky) {
+  const h = hourMin / 60;
+  if (h < 7 || h > 17) return 0;
+  const peak = Math.sin((h - 7) * Math.PI / 10);
+  return Math.round(peak * 11 * SKY_MULT[sky]);
+}
+
+/* ── Update KPI cards & readouts ── */
+function updateKPIs() {
+  const h  = Math.floor(PARAM.hourMin / 60);
+  const m  = PARAM.hourMin % 60;
+  const hh = String(h).padStart(2,"0");
+  const mm = String(m).padStart(2,"0");
+
+  // Sky condition labels
+  const skyLabels = {
+    sunny:   { time: h<8?"Pagi cerah":h<12?"Siang cerah":h<16?"Siang terik":"Sore cerah", feel:"" },
+    partial: { time: "Berawan sebagian", feel:"" },
+    cloudy:  { time: "Berawan", feel:"" },
+    overcast:{ time: "Mendung", feel:"" },
+  };
+
+  const tempFeel = PARAM.temp < 24 ? "Sejuk" : PARAM.temp < 28 ? "Nyaman" : PARAM.temp < 32 ? "Panas" : "Sangat panas";
+  const windFeel = PARAM.wind < 1 ? "Tenang" : PARAM.wind < 3 ? "Semilir" : PARAM.wind < 6 ? "Angin sedang" : "Kencang";
+  const uv = calcUV(PARAM.hourMin, PARAM.sky);
+  const uvLabel = uv <= 2 ? "Rendah" : uv <= 5 ? "Sedang" : uv <= 7 ? "Tinggi" : uv <= 10 ? "Sangat tinggi" : "Ekstrem";
+
+  document.getElementById("kpi-time").textContent     = `${hh}:${mm}`;
+  document.getElementById("kpi-sky-label").textContent = skyLabels[PARAM.sky]?.time || SKY_LABEL[PARAM.sky];
+  document.getElementById("kpi-temp").innerHTML        = `${PARAM.temp.toFixed(1)} <small>°C</small>`;
+  document.getElementById("kpi-temp-feel").textContent = tempFeel;
+  document.getElementById("kpi-humid").innerHTML       = `${PARAM.humid} <small>%</small>`;
+  document.getElementById("kpi-wind").innerHTML        = `${PARAM.wind.toFixed(1)} <small>m/s</small>`;
+  document.getElementById("kpi-wind-feel").textContent = windFeel;
+  document.getElementById("kpi-sky").textContent       = SKY_LABEL[PARAM.sky];
+  document.getElementById("kpi-sky-mult").textContent  = SKY_MULT_S[PARAM.sky];
+  document.getElementById("kpi-uv").textContent        = uv;
+  document.getElementById("kpi-uv-label").textContent  = uvLabel;
+
+  // Slider readouts
+  document.getElementById("out-hour").textContent  = `${hh}:${mm}`;
+  document.getElementById("out-temp").textContent  = `${PARAM.temp.toFixed(1)}°C`;
+  document.getElementById("out-humid").textContent = `${PARAM.humid}%`;
+  document.getElementById("out-wind").textContent  = `${PARAM.wind.toFixed(1)} m/s`;
+}
+
+/* ── Main update ── */
+function onParamChange() {
+  PARAM.hourMin = parseInt(document.getElementById("sl-hour").value);
+  PARAM.temp    = parseFloat(document.getElementById("sl-temp").value);
+  PARAM.humid   = parseInt(document.getElementById("sl-humid").value);
+  PARAM.wind    = parseFloat(document.getElementById("sl-wind").value);
+  updateKPIs();
+  updateCesiumColors();
+}
+
+/* ── Apply preset ── */
+function applyPreset(btn, key) {
+  const p = PRESETS[key]; if (!p) return;
+  Object.assign(PARAM, p);
+  document.getElementById("sl-hour").value  = p.hourMin;
+  document.getElementById("sl-temp").value  = p.temp;
+  document.getElementById("sl-humid").value = p.humid;
+  document.getElementById("sl-wind").value  = p.wind;
+  setSky(p.sky, null, true);
+  document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  updateKPIs();
+  updateCesiumColors();
+}
+
+/* ── Set sky ── */
+function setSky(key, btn, skipPresetReset) {
+  PARAM.sky = key;
+  document.querySelectorAll(".sky-btn").forEach(b => b.classList.remove("active"));
+  const target = document.getElementById("sky-"+key);
+  if (target) target.classList.add("active");
+  if (!skipPresetReset) {
+    document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+  }
+  updateKPIs();
+  updateCesiumColors();
+}
+
+/* ── Toggle expand ── */
+function toggleParam() {
+  const body    = document.getElementById("param-body");
+  const chevron = document.getElementById("paramChevron");
+  const isOpen  = body.classList.toggle("open");
+  chevron.classList.toggle("open", isOpen);
+}
+
+/* Init */
+updateKPIs();
 </script>
 
 </body>
