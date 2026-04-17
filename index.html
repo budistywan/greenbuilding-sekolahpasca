@@ -1586,12 +1586,13 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
 <script>
 /* ── State ── */
 const PARAM = {
-  hourMin: 540,    // 09:00
+  hourMin: 540,
   temp:    29,
   humid:   72,
   wind:    2,
-  sky:     'sunny',  // sunny | partial | cloudy | overcast
+  sky:     'sunny',
 };
+window.PARAM = PARAM;
 
 const SKY_MULT   = { sunny:1.0, partial:0.6, cloudy:0.3, overcast:0.1 };
 const SKY_LABEL  = { sunny:'Cerah', partial:'Berawan sebagian', cloudy:'Berawan', overcast:'Mendung/hujan' };
@@ -1885,6 +1886,21 @@ document.getElementById("scroll-zone").addEventListener("touchmove", (e) => {
      DASHBOARD ENGINE
 ══════════════════════════════════════════ -->
 <script>
+// Fallback jika parameter engine belum load
+const SKY_MULT = window.SKY_MULT || { sunny:1.0, partial:0.6, cloudy:0.3, overcast:0.1 };
+function activeSolarDirections(hourMin) {
+  if (typeof window.activeSolarDirections === 'function' && window._asdOverride) return window._asdOverride(hourMin);
+  const h = hourMin / 60;
+  if (h < 5.8 || h > 17.87) return [];
+  if (h < 7)   return ["E","NE"];
+  if (h < 9)   return ["E","NE","N"];
+  if (h < 12)  return ["N","NE","NW"];
+  if (h < 14)  return ["N","NW","W"];
+  if (h < 16)  return ["W","NW"];
+  if (h < 18)  return ["W","SW"];
+  return [];
+}
+
 const JADWAL = {
   kuliah:   [0,0,0,0,0,0,0,0.3,0.85,0.95,0.90,0.50,0.80,0.95,0.85,0.60,0.20,0.05,0,0,0,0,0,0],
   seminar:  [0,0,0,0,0,0,0,0,0.40,0.85,0.90,0.50,0.60,0.85,0.80,0.40,0.10,0,0,0,0,0,0,0],
@@ -2247,9 +2263,11 @@ window.applyPreset=function(b,k){_origAP(b,k);updateDashboard();};
 const _origSS=window.setSky||function(){};
 window.setSky=function(k,b,s){_origSS(k,b,s);updateDashboard();};
 
-function waitAndInit(){
-  if(window.ROOM_REGISTRY&&Object.keys(window.ROOM_REGISTRY).length>0){initCharts();}
-  else{setTimeout(waitAndInit,300);}
+function waitAndInit() {
+  if (typeof Chart === 'undefined') { setTimeout(waitAndInit, 200); return; }
+  if (!window.ROOM_REGISTRY || Object.keys(window.ROOM_REGISTRY).length === 0) { setTimeout(waitAndInit, 300); return; }
+  if (!window.PARAM) { setTimeout(waitAndInit, 200); return; }
+  initCharts();
 }
 waitAndInit();
 </script>
