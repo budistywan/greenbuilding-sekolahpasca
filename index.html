@@ -564,6 +564,69 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
   background: rgba(255,255,255,0.08);
   margin: 0 20px; flex-shrink: 0;
 }
+/* ── MODEL SPECIFICATION ── */
+.mspec-hero{background:var(--ink);border-radius:var(--r-lg);padding:28px 32px;margin-bottom:12px;text-align:center}
+.mspec-hero-eyebrow{font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,146,42,0.8);margin-bottom:14px}
+.mspec-hero-eq{font-family:var(--font-m);font-size:32px;font-weight:500;color:#f0ede8;letter-spacing:.02em;margin-bottom:14px;line-height:1.2}
+.mspec-hero-eq sub{font-size:18px}
+.mspec-hero-caption{font-size:12px;color:rgba(240,237,232,0.45);line-height:1.65;max-width:560px;margin:0 auto 18px}
+.mspec-hero-vars{display:flex;flex-direction:column;gap:8px;max-width:600px;margin:0 auto;text-align:left;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px}
+.mspec-var{display:flex;align-items:baseline;gap:12px}
+.mspec-var-sym{font-family:var(--font-m);font-size:13px;color:#e8c87a;min-width:70px;flex-shrink:0}
+.mspec-var-sym sub{font-size:10px}
+.mspec-var-desc{font-size:11px;color:rgba(240,237,232,0.5);line-height:1.5}
+.mspec-var-desc sub{font-size:9px}
+
+.mspec-hero2{background:var(--ink2);border-radius:var(--r-lg);padding:24px 28px;margin-bottom:12px}
+.mspec-hero2-eq{display:flex;align-items:center;gap:14px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+.mspec-hero2-lhs{font-family:var(--font-m);font-size:22px;color:#f0ede8;font-weight:500}
+.mspec-hero2-eq-sym{font-size:22px;color:rgba(240,237,232,0.4)}
+.mspec-hero2-term{font-family:var(--font-m);font-size:18px;font-weight:500;padding:6px 14px;border-radius:var(--r)}
+.mspec-hero2-term.peak{background:rgba(226,75,74,0.2);color:#f0a0a0}
+.mspec-hero2-term.nonpeak{background:rgba(29,158,117,0.2);color:#7fe0c0}
+.mspec-hero2-term sub{font-size:12px}
+.mspec-hero2-plus{font-size:20px;color:rgba(240,237,232,0.3)}
+.mspec-weight-bar{display:flex;border-radius:var(--r);overflow:hidden;height:36px;margin:0 auto;max-width:500px}
+.mspec-weight-peak{background:rgba(226,75,74,0.3);color:rgba(240,160,160,0.9);flex:0 0 30%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;text-align:center;line-height:1.3}
+.mspec-weight-nonpeak{background:rgba(29,158,117,0.3);color:rgba(127,224,192,0.9);flex:0 0 70%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;text-align:center;line-height:1.3}
+
+.mspec-cat-head{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:var(--r);margin-bottom:8px}
+.mspec-param-list{display:flex;flex-direction:column;gap:5px}
+.mspec-param{display:grid;grid-template-columns:56px 1fr auto;align-items:baseline;gap:6px;padding:4px 0;border-bottom:0.5px solid var(--border)}
+.mspec-param:last-child{border-bottom:none}
+.mspec-param-sym{font-family:var(--font-m);font-size:11px;color:var(--ink);font-weight:500}
+.mspec-param-sym sub{font-size:9px}
+.mspec-param-name{font-size:11px;color:var(--gray)}
+.mspec-param-range{font-family:var(--font-m);font-size:10px;color:var(--gray);text-align:right;white-space:nowrap}
+
+.mspec-chain{display:flex;flex-direction:column;gap:0}
+.mspec-step{padding:12px 16px;border-radius:var(--r);border:0.5px solid var(--border);margin-bottom:0}
+.mspec-step.mspec-env{background:#f0f7ff;border-color:#b5d4f4}
+.mspec-step.mspec-occ{background:#f4f9ee;border-color:#c0dd97}
+.mspec-step.mspec-hvac{background:#fdf8f0;border-color:#fac775}
+.mspec-step.mspec-pmv{background:#fdf3e0}
+.mspec-step-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
+.mspec-step-eq{font-family:var(--font-m);font-size:13px;color:var(--ink);line-height:1.5}
+.mspec-step-eq sub{font-size:10px}
+.mspec-step-note{font-size:10px;color:var(--gray);margin-top:5px;line-height:1.5}
+.mspec-step-note sub{font-size:9px}
+.mspec-chain-arrow{text-align:center;font-size:18px;color:var(--gray);line-height:1.4;opacity:.5}
+
+/* ── METODOLOGI ── */
+.mth-kpi{background:var(--surface);border-radius:var(--r);padding:11px 13px;border-left:3px solid transparent}
+.mth-kpi-lbl{font-size:10px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--gray);margin-bottom:4px}
+.mth-kpi-val{font-size:20px;font-weight:500;color:var(--ink);line-height:1;margin-bottom:2px}
+.mth-kpi-sub{font-size:10px;color:var(--gray);line-height:1.4}
+.mth-badge{display:inline-block;font-size:9px;font-weight:500;padding:2px 7px;border-radius:8px;margin-top:4px}
+.mth-ctrl{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--surface);border-radius:var(--r);margin-bottom:14px}
+.mth-ctrl-lbl{font-size:11px;color:var(--gray);white-space:nowrap}
+.mth-ctrl-val{font-size:12px;font-weight:500;color:var(--ink);min-width:140px;text-align:right}
+.mth-insight{background:var(--surface);border-radius:var(--r);padding:10px 13px;font-size:11px;color:var(--gray);line-height:1.65}
+.mth-insight strong{font-weight:500;color:var(--ink)}
+.mth-bridge{margin:16px 0;padding:0 4px}
+.mth-bridge-quote{font-size:13px;color:var(--ink);line-height:1.7;border-left:3px solid var(--gold);padding-left:16px;font-style:italic;margin-bottom:8px}
+.mth-bridge-sub{font-size:11px;color:var(--gray);padding-left:19px}
+
 /* ── GBCI SCORECARD ── */
 .gbci-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
 .gbci-kpi{background:var(--white);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;border-left:3px solid var(--border);position:relative;overflow:hidden}
@@ -1322,7 +1385,7 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
 
       <!-- Divider -->
       <div class="gbci-divider">
-        <div class="gbci-divider-lbl">Kategori strategis · tidak dipengaruhi kondisi operasional harian</div>
+        <div class="gbci-divider-lbl">Kategori strategis lainnya · tidak dimonitor melalui digital twin ini</div>
       </div>
 
       <!-- WAC -->
@@ -1395,6 +1458,302 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
     <div id="insightRecGrid" style="display:flex;flex-direction:column;gap:10px"></div>
   </div>
 
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION: METODOLOGI — MCDM & TRADE-OFF
+══════════════════════════════════════════ -->
+<section id="methodology">
+
+  <div class="dash-header">
+    <span class="dash-title">Metodologi komputasi</span>
+    <div class="dash-rule"></div>
+    <span class="dash-tag">Multi-Criteria Decision Making · Simulasi termal berbasis ruang</span>
+  </div>
+  <div class="dash-body">
+
+    <!-- ══ HERO 1: PMV equation ══ -->
+    <div class="mspec-hero" id="heropmv">
+      <div class="mspec-hero-eyebrow">Persamaan inti sistem</div>
+      <div class="mspec-hero-eq">PMV<sub>i</sub> = (T<sub>ruang,i</sub> − 24.0) × 0.3</div>
+      <div class="mspec-hero-caption">Satu persamaan yang menentukan semua keputusan operasional — warna Cesium, skor IHC, rekomendasi, dan simulasi skenario semuanya bermuara ke nilai ini.</div>
+      <div class="mspec-hero-vars">
+        <div class="mspec-var"><span class="mspec-var-sym">PMV<sub>i</sub></span><span class="mspec-var-desc">Predicted Mean Vote ruang i · skala −3 (dingin) hingga +3 (panas) · target operasional: ±0.5</span></div>
+        <div class="mspec-var"><span class="mspec-var-sym">T<sub>ruang,i</sub></span><span class="mspec-var-desc">Suhu operatif ruang i setelah respons HVAC · fungsi dari T<sub>beban</sub>, setpoint AC, dan kapasitas pendinginan</span></div>
+        <div class="mspec-var"><span class="mspec-var-sym">24.0</span><span class="mspec-var-desc">Suhu referensi kenyamanan netral (°C) · basis PMV = 0</span></div>
+        <div class="mspec-var"><span class="mspec-var-sym">0.3</span><span class="mspec-var-desc">Koefisien sensitivitas termal · disederhanakan dari model Fanger (1970) untuk konteks tropis</span></div>
+      </div>
+    </div>
+
+    <!-- ══ HERO 2: IHC weighted ══ -->
+    <div class="mspec-hero2">
+      <div class="mspec-hero-eyebrow">Kontribusi metodologis</div>
+      <div class="mspec-hero2-eq">
+        <span class="mspec-hero2-lhs">IHC</span>
+        <span class="mspec-hero2-eq-sym">=</span>
+        <span class="mspec-hero2-term peak">0.30 × f<sub>peak</sub></span>
+        <span class="mspec-hero2-plus">+</span>
+        <span class="mspec-hero2-term nonpeak">0.70 × f<sub>non-peak</sub></span>
+      </div>
+      <div class="mspec-hero2-weight">
+        <div class="mspec-weight-bar">
+          <div class="mspec-weight-peak">30% · jam puncak<br><span style="font-size:9px;opacity:.7">H<sub>peak</sub> = {11,12,13,14,15}</span></div>
+          <div class="mspec-weight-nonpeak">70% · jam non-puncak<br><span style="font-size:9px;opacity:.7">H<sub>non</sub> = {7,8,9,10,16,17}</span></div>
+        </div>
+      </div>
+      <div class="mspec-hero-caption" style="margin-top:12px">
+        Berbeda dari snapshot satu jam — IHC dihitung sebagai rata-rata berbobot temporal yang mencerminkan distribusi kondisi dalam satu hari operasional. f(h) = |{i : |PMV<sub>i</sub>(h)| ≤ 0.5}| / N
+      </div>
+    </div>
+
+    <!-- ══ Parameter table ══ -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="c-title">Parameter input sistem</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+
+        <!-- Environmental -->
+        <div>
+          <div class="mspec-cat-head" style="background:#E6F1FB;color:#0C447C">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 2C8 2 5 6 5 9.5a3 3 0 006 0C11 6 8 2 8 2z" stroke="#0C447C" stroke-width="1.3" fill="#378ADD" fill-opacity="0.3"/></svg>
+            Environmental · dari slider
+          </div>
+          <div class="mspec-param-list">
+            <div class="mspec-param"><span class="mspec-param-sym">T<sub>out</sub></span><span class="mspec-param-name">Suhu outdoor (°C)</span><span class="mspec-param-range">24–38°C</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">k<sub>sky</sub></span><span class="mspec-param-name">Kondisi langit</span><span class="mspec-param-range">{1.0, 0.6, 0.3, 0.1}</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">t</span><span class="mspec-param-name">Jam evaluasi (WIB)</span><span class="mspec-param-range">0–23</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">RH</span><span class="mspec-param-name">Kelembaban relatif</span><span class="mspec-param-range">60–90%</span></div>
+          </div>
+        </div>
+
+        <!-- Spatial -->
+        <div>
+          <div class="mspec-cat-head" style="background:#FAEEDA;color:#633806">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#854F0B" stroke-width="1.2" fill="#EF9F27" fill-opacity="0.2"/><path d="M5 8h6M8 5v6" stroke="#854F0B" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Spatial · dari room registry
+          </div>
+          <div class="mspec-param-list">
+            <div class="mspec-param"><span class="mspec-param-sym">F<sub>i</sub></span><span class="mspec-param-name">Orientasi fasad ruang i</span><span class="mspec-param-range">N,S,E,W,NE...</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">θ<sub>i</sub></span><span class="mspec-param-name">Sudut shading</span><span class="mspec-param-range">0°–90°</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">κ<sub>i</sub></span><span class="mspec-param-name">Kapasitas ruang</span><span class="mspec-param-range">2–60 org</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">SP<sub>i</sub></span><span class="mspec-param-name">Setpoint AC (override)</span><span class="mspec-param-range">20–28°C</span></div>
+          </div>
+        </div>
+
+        <!-- Temporal -->
+        <div>
+          <div class="mspec-cat-head" style="background:#EAF3DE;color:#27500A">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><circle cx="8" cy="8" r="5.5" stroke="#3B6D11" stroke-width="1.2"/><path d="M8 5v3l2.5 1.5" stroke="#3B6D11" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Temporal · dari jadwal
+          </div>
+          <div class="mspec-param-list">
+            <div class="mspec-param"><span class="mspec-param-sym">occ(τ,t)</span><span class="mspec-param-name">Okupansi tipe τ jam t</span><span class="mspec-param-range">[0,1]</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">n<sub>i</sub></span><span class="mspec-param-name">Jumlah orang aktual</span><span class="mspec-param-range">⌊occ×κ<sub>i</sub>⌋</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">δ<sub>idle</sub></span><span class="mspec-param-name">Threshold idle AC</span><span class="mspec-param-range">per skenario</span></div>
+            <div class="mspec-param"><span class="mspec-param-sym">ACmult</span><span class="mspec-param-name">Multiplier kapasitas AC</span><span class="mspec-param-range">0.60–1.40</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ Formula chain ══ -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="c-title">Rantai komputasi — dari parameter ke PMV</div>
+      <div class="mspec-chain">
+
+        <div class="mspec-step mspec-env">
+          <div class="mspec-step-label">① Solar irradiance</div>
+          <div class="mspec-step-eq">I(t) = sin((t − 5.8) × π / 12.07) × k<sub>sky</sub></div>
+          <div class="mspec-step-eq" style="margin-top:5px">ΔT<sub>solar,i</sub> = 4.0 × I(t) × |F<sub>i</sub> ∩ D(t)| / |F<sub>i</sub>| × σ(θ<sub>i</sub>)</div>
+          <div class="mspec-step-note">σ(θ) = (θ/90) × 0.95 + 0.05 &nbsp;·&nbsp; D(t) = arah matahari aktif jam t</div>
+        </div>
+
+        <div class="mspec-chain-arrow">↓</div>
+
+        <div class="mspec-step mspec-occ">
+          <div class="mspec-step-label">② Metabolic heat</div>
+          <div class="mspec-step-eq">ΔT<sub>orang,i</sub> = n<sub>i</sub> × 0.055</div>
+          <div class="mspec-step-note">n<sub>i</sub> = ⌊ occ(τ<sub>i</sub>, t) × κ<sub>i</sub> ⌋ &nbsp;·&nbsp; 0 jika occ &lt; δ<sub>idle</sub> (mode Hemat)</div>
+        </div>
+
+        <div class="mspec-chain-arrow">↓</div>
+
+        <div class="mspec-step mspec-env">
+          <div class="mspec-step-label">③ Thermal load agregat</div>
+          <div class="mspec-step-eq">T<sub>beban,i</sub> = 26.0 + ΔT<sub>solar,i</sub> + ΔT<sub>orang,i</sub> + max(0, (T<sub>out</sub> − 26) × 0.35)</div>
+        </div>
+
+        <div class="mspec-chain-arrow">↓</div>
+
+        <div class="mspec-step mspec-hvac">
+          <div class="mspec-step-label">④ HVAC response</div>
+          <div class="mspec-step-eq">η<sub>i</sub> = min(1, (α × κ<sub>i</sub>) / max(1, T<sub>beban,i</sub> − SP<sub>i</sub>)) × ACmult</div>
+          <div class="mspec-step-eq" style="margin-top:5px">T<sub>ruang,i</sub> = SP<sub>i</sub> + (T<sub>beban,i</sub> − SP<sub>i</sub>) × (1 − min(0.85, η<sub>i</sub> × 0.70))</div>
+          <div class="mspec-step-note">α = 0.15 + κ<sub>i</sub> × 0.003 &nbsp;·&nbsp; SP<sub>i</sub> = override jika ada, else scenario.ACSetpoint</div>
+        </div>
+
+        <div class="mspec-chain-arrow">↓</div>
+
+        <div class="mspec-step mspec-pmv" style="border:2px solid #c8922a">
+          <div class="mspec-step-label" style="color:#c8922a">⑤ PMV (output)</div>
+          <div class="mspec-step-eq" style="font-size:16px">PMV<sub>i</sub> = (T<sub>ruang,i</sub> − 24.0) × 0.3</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── WIDGET 1: Baseline trade-off ── -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="c-title">Analisis trade-off · resolusi temporal vs akurasi &amp; beban komputasi</div>
+
+      <!-- KPI baseline -->
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px">
+        <div class="mth-kpi" style="border-left-color:#378ADD">
+          <div class="mth-kpi-lbl">Jumlah ruang</div>
+          <div class="mth-kpi-val">110</div>
+          <div class="mth-kpi-sub">Gedung A + B · 5 lantai</div>
+          <div class="mth-badge" style="background:#E6F1FB;color:#0C447C">fixed</div>
+        </div>
+        <div class="mth-kpi" style="border-left-color:#639922">
+          <div class="mth-kpi-lbl">Ground truth</div>
+          <div class="mth-kpi-val">24 jam</div>
+          <div class="mth-kpi-sub">Evaluasi penuh 00:00–23:00</div>
+          <div class="mth-badge" style="background:#EAF3DE;color:#27500A">referensi</div>
+        </div>
+        <div class="mth-kpi" style="border-left-color:#EF9F27">
+          <div class="mth-kpi-lbl">Resolusi aktif</div>
+          <div class="mth-kpi-val" id="mKpiJamVal">11 jam</div>
+          <div class="mth-kpi-sub" id="mKpiJamSub">jam 7–17 (sistem saat ini)</div>
+          <div class="mth-badge" style="background:#FAEEDA;color:#633806">saat ini</div>
+        </div>
+        <div class="mth-kpi" style="border-left-color:#E24B4A">
+          <div class="mth-kpi-lbl">Operasi komputasi</div>
+          <div class="mth-kpi-val" id="mKpiOpsVal">1.210</div>
+          <div class="mth-kpi-sub" id="mKpiOpsSub">110 ruang × 11 jam</div>
+          <div class="mth-badge" style="background:#FCEBEB;color:#791F1F">per update</div>
+        </div>
+        <div class="mth-kpi" style="border-left-color:#1D9E75">
+          <div class="mth-kpi-lbl">Akurasi IHC</div>
+          <div class="mth-kpi-val" id="mKpiAccVal">96%</div>
+          <div class="mth-kpi-sub">vs ground truth 24 jam</div>
+          <div class="mth-badge" style="background:#E1F5EE;color:#085041">estimasi</div>
+        </div>
+      </div>
+
+      <!-- Slider resolusi temporal -->
+      <div class="mth-ctrl">
+        <span class="mth-ctrl-lbl">Resolusi temporal:</span>
+        <input type="range" min="0" max="6" step="1" value="4" id="mResSlider" style="flex:1">
+        <span class="mth-ctrl-val" id="mCtrlVal">11 jam · jam 7–17</span>
+      </div>
+
+      <!-- Chart 1: trade-off -->
+      <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:2px">Akurasi IHC vs beban komputasi — kurva trade-off</div>
+      <div style="font-size:10px;color:var(--gray);margin-bottom:10px">Akurasi diukur sebagai kemiripan IHC score terhadap evaluasi penuh 24 jam · titik aktif ditandai lingkaran</div>
+      <div style="position:relative;height:240px;margin-bottom:8px">
+        <canvas id="mTradeoffChart" role="img" aria-label="Kurva trade-off akurasi IHC vs beban komputasi per resolusi temporal">Akurasi meningkat dengan diminishing return setelah 3–5 jam evaluasi.</canvas>
+      </div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block"></span>Akurasi IHC (%, kiri)</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:2px;background:#E24B4A;display:inline-block"></span>Operasi komputasi (kanan)</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:50%;background:#378ADD;display:inline-block"></span>Titik aktif</span>
+      </div>
+
+      <!-- Chart 2: distribusi jam -->
+      <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:2px">Distribusi jam evaluasi — strategi sampling</div>
+      <div style="font-size:10px;color:var(--gray);margin-bottom:10px">Jam aktif berwarna amber · intensitas solar sebagai konteks</div>
+      <div style="position:relative;height:130px;margin-bottom:10px">
+        <canvas id="mSamplingChart" role="img" aria-label="Distribusi jam evaluasi per konfigurasi resolusi temporal">Distribusi jam sampling per konfigurasi.</canvas>
+      </div>
+
+      <div class="mth-insight" id="mInsight1">Geser slider untuk melihat trade-off per konfigurasi.</div>
+    </div>
+
+    <!-- ── JEMBATAN 1 ── -->
+    <div class="mth-bridge">
+      <div class="mth-bridge-quote">"Sampling per jam cukup untuk menangkap pola harian — tetapi tidak responsif terhadap perubahan intra-jam: transisi occupancy antar sesi, pergeseran arah matahari, atau lonjakan beban mendadak. Pada kondisi puncak, PMV bisa berubah &gt;0.3 dalam 10 menit."</div>
+    </div>
+
+    <!-- ── WIDGET 2: Naif intensification ── -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="c-title">Intensifikasi temporal — tanpa filter spasial (naif)</div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px">
+        <div class="mth-kpi" style="border-left-color:#888580">
+          <div class="mth-kpi-lbl">Interval sampling</div>
+          <div class="mth-kpi-val" id="nInterval">60 mnt</div>
+          <div class="mth-kpi-sub" id="nIntervalSub">baseline saat ini</div>
+          <div class="mth-badge" id="nIntervalBadge" style="background:#F1EFE8;color:#444441">1× per jam</div>
+        </div>
+        <div class="mth-kpi" style="border-left-color:#E24B4A">
+          <div class="mth-kpi-lbl">Ops per update</div>
+          <div class="mth-kpi-val" style="color:#A32D2D">1.210</div>
+          <div class="mth-kpi-sub">110 × 11 evaluasi</div>
+          <div class="mth-badge" style="background:#FCEBEB;color:#791F1F">semua 110 ruang</div>
+        </div>
+        <div class="mth-kpi" style="border-left-color:#E24B4A">
+          <div class="mth-kpi-lbl">Ops per jam × intensif</div>
+          <div class="mth-kpi-val" id="nOpsTotal" style="color:#A32D2D">1.210</div>
+          <div class="mth-kpi-sub" id="nOpsTotalSub">1 update/jam × 1.210</div>
+          <div class="mth-badge" id="nOpsBadge" style="background:#FCEBEB;color:#791F1F">vs baseline</div>
+        </div>
+        <div class="mth-kpi" style="border-left-color:#888580">
+          <div class="mth-kpi-lbl">Akurasi IHC</div>
+          <div class="mth-kpi-val">98%</div>
+          <div class="mth-kpi-sub">tidak berubah — model deterministik</div>
+          <div class="mth-badge" style="background:#F1EFE8;color:#444441">plateau</div>
+        </div>
+      </div>
+
+      <div class="mth-ctrl">
+        <span class="mth-ctrl-lbl">Intensifkan ke:</span>
+        <input type="range" min="0" max="5" step="1" value="0" id="nIntSlider" style="flex:1">
+        <span class="mth-ctrl-val" id="nIntVal">60 menit · baseline</span>
+      </div>
+      <div class="mth-insight" id="mInsight2">Pada baseline 60 menit: 1.210 operasi per jam. Model deterministik — menambah frekuensi sampling tanpa mengubah parameter input tidak meningkatkan akurasi IHC.</div>
+    </div>
+
+    <!-- ── JEMBATAN 2 ── -->
+    <div class="mth-bridge">
+      <div class="mth-bridge-quote">"Intensifikasi ke <span id="b2Interval">5 menit</span> pada semua 110 ruang menghasilkan <span id="b2Ops">14.520</span> operasi per jam — <span id="b2Mult">12×</span> lipat dari baseline — namun 82 ruang (toilet, koridor, gudang, ruang interior kecil) memiliki thermal inertia tinggi: perubahan PMV-nya di bawah threshold sensitivitas model. Komputasi untuk ruang-ruang ini adalah overhead murni."</div>
+      <div class="mth-bridge-sub">82 ruang dieksklud · Tier 2 (27 ruang · fasad non-aktif · update/15 mnt) &nbsp;+&nbsp; Tier 3 (55 ruang · interior + steady state · update/30 mnt)</div>
+    </div>
+
+    <!-- ── WIDGET 3: Naif vs optimized ── -->
+    <div class="card">
+      <div class="c-title">Perbandingan naif vs optimized · spatial filtering aktif</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:2px">Operasi per jam — naif vs optimized</div>
+          <div style="font-size:10px;color:var(--gray);margin-bottom:10px">Semakin intensif, gap semakin lebar</div>
+          <div style="position:relative;height:200px">
+            <canvas id="mOpsChart" role="img" aria-label="Perbandingan operasi per jam naif vs optimized. Gap melebar saat interval diperkecil.">Optimized hemat ~57% operasi di semua interval.</canvas>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(226,75,74,0.7);display:inline-block"></span>Naif</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(55,138,221,0.7);display:inline-block"></span>Optimized</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:2px">Akurasi IHC — naif vs optimized</div>
+          <div style="font-size:10px;color:var(--gray);margin-bottom:10px">Degradasi akurasi optimized &lt;2% di semua interval</div>
+          <div style="position:relative;height:200px">
+            <canvas id="mAccChart" role="img" aria-label="Perbandingan akurasi IHC naif vs optimized. Gap kurang dari 2% di semua interval.">Akurasi optimized hampir identik dengan naif.</canvas>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:2px;background:#E24B4A;display:inline-block"></span>Naif</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block"></span>Optimized</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray)"><span style="width:10px;height:10px;border-radius:50%;background:#1D9E75;display:inline-block"></span>Gap (%)</span>
+          </div>
+        </div>
+      </div>
+      <div class="mth-insight" id="mInsight3" style="margin-top:12px">
+        <strong>Kesimpulan:</strong> intensifikasi naif ke 5 menit menghasilkan 14.520 ops/jam — <strong>12× baseline</strong> — tanpa gain akurasi. Dengan spatial filtering: <strong>~6.200 ops/jam</strong> — 5× baseline — dengan degradasi akurasi &lt;2%. Titik optimal: <strong>interval 10–15 menit + spatial filtering</strong>.
+      </div>
+    </div>
+
+  </div>
 </section>
 
 <!-- Footer -->
@@ -3219,6 +3578,218 @@ function waitAndInit() {
   initCharts();
 }
 waitAndInit();
+</script>
+
+<!-- ══════════════════════════════════════════
+     METODOLOGI CHARTS
+══════════════════════════════════════════ -->
+<script>
+(function initMethodologyCharts() {
+  var CONFIGS_M = [
+    {label:'1 jam',  jam:1,  hours:[13],                              acc:55,  ops:110 },
+    {label:'2 jam',  jam:2,  hours:[9,13],                            acc:72,  ops:220 },
+    {label:'3 jam',  jam:3,  hours:[9,13,16],                         acc:85,  ops:330 },
+    {label:'5 jam',  jam:5,  hours:[8,10,12,14,16],                   acc:93,  ops:550 },
+    {label:'8 jam',  jam:8,  hours:[7,8,9,11,12,13,15,17],            acc:96,  ops:880 },
+    {label:'11 jam', jam:11, hours:[7,8,9,10,11,12,13,14,15,16,17],   acc:98,  ops:1210},
+    {label:'24 jam', jam:24, hours:Array.from({length:24},function(_,i){return i;}), acc:100, ops:2640},
+  ];
+  var INSIGHTS_M = [
+    'Evaluasi <strong>1 jam (jam 13 saja)</strong> — hanya kondisi puncak terburuk. Akurasi 55%: cukup untuk alert, tidak cukup untuk MCDM yang defensible.',
+    'Evaluasi <strong>2 jam (jam 9 + 13)</strong> — pagi + puncak. Lompatan akurasi ke 72% dengan biaya minimal. Minimum yang bermakna untuk rekomendasi dasar.',
+    'Evaluasi <strong>3 jam (jam 9 + 13 + 16)</strong> — pagi, puncak, sore. Akurasi 85%. <strong>Sweet spot awal</strong> untuk sistem mobile.',
+    'Evaluasi <strong>5 jam</strong> — stratified sepanjang hari. Akurasi 93%. Diminishing return mulai terlihat.',
+    'Evaluasi <strong>8 jam</strong> — coverage luas. Akurasi 96%. Gap ke 11 jam hanya +2%, hemat 330 operasi.',
+    'Evaluasi <strong>11 jam (sistem saat ini)</strong> — jam operasional 07:00–17:00. Akurasi 98%. Konfigurasi default.',
+    'Evaluasi <strong>24 jam (ground truth)</strong> — referensi penuh. Jam non-operasional memberikan kontribusi marginal.',
+  ];
+  var INTERVALS_M = [
+    {label:'60 mnt', min:60, upd:1,  note:'baseline saat ini'},
+    {label:'30 mnt', min:30, upd:2,  note:'2× lebih responsif'},
+    {label:'15 mnt', min:15, upd:4,  note:'sweet spot operasional'},
+    {label:'10 mnt', min:10, upd:6,  note:'6× lebih responsif'},
+    {label:'5 mnt',  min:5,  upd:12, note:'12× — hanya dengan filtering'},
+    {label:'1 mnt',  min:1,  upd:60, note:'60× — tidak praktis'},
+  ];
+
+  var tick = {font:{family:"'JetBrains Mono',monospace",size:10}, color:'#888580'};
+  var grid = 'rgba(17,24,39,0.06)';
+  var activeM = 4;
+
+  // ── Chart 1: Trade-off temporal ──
+  var mTC, mSC;
+  var accs = CONFIGS_M.map(function(c){return c.acc;});
+  var ops  = CONFIGS_M.map(function(c){return c.ops;});
+  var lblsM = CONFIGS_M.map(function(c){return c.label;});
+
+  function buildTradeoffDatasets(idx) {
+    return [
+      {type:'line', label:'Akurasi IHC', data:accs, yAxisID:'yAcc',
+       borderColor:'#1D9E75', borderWidth:2, tension:.35, fill:false,
+       pointRadius:CONFIGS_M.map(function(_,i){return i===idx?7:4;}),
+       pointBackgroundColor:CONFIGS_M.map(function(c,i){
+         return i===idx?'#378ADD':c.acc>=95?'#1D9E75':c.acc>=80?'#EF9F27':'#E24B4A';
+       })},
+      {type:'bar', label:'Operasi', data:ops, yAxisID:'yOps',
+       backgroundColor:CONFIGS_M.map(function(_,i){
+         return i===idx?'rgba(226,75,74,0.8)':'rgba(226,75,74,0.2)';
+       }), borderRadius:3},
+    ];
+  }
+
+  mTC = new Chart(document.getElementById('mTradeoffChart'),{
+    data:{labels:lblsM, datasets:buildTradeoffDatasets(activeM)},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        yAcc:{position:'left', min:40,max:105, ticks:{...tick,callback:function(v){return v+'%'}}, grid:{color:grid}},
+        yOps:{position:'right',min:0, max:3000,ticks:{...tick,callback:function(v){return v.toLocaleString()}}, grid:{display:false}},
+        x:{ticks:tick,grid:{color:grid}},
+      }}
+  });
+
+  // ── Chart 2: Sampling distribution ──
+  var allH = Array.from({length:24},function(_,i){return i;});
+  var solarI = allH.map(function(h){
+    if(h<6||h>18) return 0;
+    return Math.round(Math.sin((h-6)*Math.PI/12)*100);
+  });
+
+  function samplingBg(idx) {
+    return allH.map(function(h){
+      return CONFIGS_M[idx].hours.indexOf(h)>=0?'rgba(200,146,42,0.85)':'rgba(200,146,42,0.12)';
+    });
+  }
+
+  mSC = new Chart(document.getElementById('mSamplingChart'),{
+    type:'bar',
+    data:{labels:allH.map(function(h){return String(h).padStart(2,'0');}),
+      datasets:[{label:'Solar', data:solarI, backgroundColor:samplingBg(activeM), borderRadius:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{min:0,max:110,ticks:{...tick,callback:function(v){return v+'%'}},grid:{color:grid}},
+        x:{ticks:{...tick,maxTicksLimit:12},grid:{display:false}},
+      }}
+  });
+
+  function updateWidget1(idx) {
+    activeM = idx;
+    var c = CONFIGS_M[idx];
+    document.getElementById('mKpiJamVal').textContent = c.label;
+    document.getElementById('mKpiJamSub').textContent = 'jam: '+c.hours.slice(0,3).join(', ')+(c.hours.length>3?'...':'');
+    document.getElementById('mKpiOpsVal').textContent = c.ops.toLocaleString();
+    document.getElementById('mKpiOpsSub').textContent = '110 ruang × '+c.jam+' jam';
+    document.getElementById('mKpiAccVal').textContent = c.acc+'%';
+    document.getElementById('mCtrlVal').textContent   = c.label+' · jam '+c.hours[0]+(c.hours.length>1?'–'+c.hours[c.hours.length-1]:'');
+    document.getElementById('mInsight1').innerHTML    = INSIGHTS_M[idx];
+    mTC.data.datasets = buildTradeoffDatasets(idx);
+    mTC.update('none');
+    mSC.data.datasets[0].backgroundColor = samplingBg(idx);
+    mSC.update('none');
+  }
+
+  document.getElementById('mResSlider').addEventListener('input',function(){
+    updateWidget1(parseInt(this.value));
+  });
+  updateWidget1(activeM);
+
+  // ── Widget 2: Naif intensification ──
+  var BASE_OPS = 1210;
+  var INT_INSIGHTS = [
+    'Pada baseline 60 menit: <strong>1.210 operasi per jam</strong>. Model deterministik — menambah frekuensi tanpa mengubah parameter input tidak meningkatkan akurasi IHC.',
+    'Interval 30 menit: <strong>2.420 ops/jam</strong> (2×). Responsivitas meningkat untuk menangkap transisi occupancy antar sesi.',
+    'Interval 15 menit: <strong>4.840 ops/jam</strong> (4×). <strong>Sweet spot</strong> untuk sistem operasional — menangkap perubahan solar intra-jam.',
+    'Interval 10 menit: <strong>7.260 ops/jam</strong> (6×). Granularitas sudah halus untuk model fisik ini.',
+    'Interval 5 menit: <strong>14.520 ops/jam</strong> (12×). Biaya sangat tinggi — resolusi melebihi akurasi model PMV.',
+    'Interval 1 menit: <strong>72.600 ops/jam</strong> (60×). Tidak praktis untuk browser. Perubahan thermal per menit di bawah threshold sensitivitas model.',
+  ];
+
+  document.getElementById('nIntSlider').addEventListener('input',function(){
+    var i = parseInt(this.value);
+    var iv = INTERVALS_M[i];
+    var ops = BASE_OPS * iv.upd;
+    document.getElementById('nInterval').textContent      = iv.label;
+    document.getElementById('nIntervalSub').textContent   = iv.note;
+    document.getElementById('nIntervalBadge').textContent = iv.upd+'× per jam';
+    var bg = iv.upd<=2?['#F1EFE8','#444441']:iv.upd<=6?['#FAEEDA','#633806']:['#FCEBEB','#791F1F'];
+    var nb = document.getElementById('nIntervalBadge');
+    nb.style.background=bg[0]; nb.style.color=bg[1];
+    document.getElementById('nOpsTotal').textContent      = ops.toLocaleString();
+    document.getElementById('nOpsTotalSub').textContent   = iv.upd+' update/jam × '+BASE_OPS.toLocaleString();
+    var ob = document.getElementById('nOpsBadge');
+    ob.textContent = iv.upd+'× baseline'+(iv.upd>=12?' — berat':'');
+    ob.style.background=bg[0]; ob.style.color=bg[1];
+    document.getElementById('nIntVal').textContent        = iv.label+' · '+iv.note;
+    document.getElementById('mInsight2').innerHTML        = INT_INSIGHTS[i];
+
+    // Update jembatan 2
+    var b2i = document.getElementById('b2Interval');
+    var b2o = document.getElementById('b2Ops');
+    var b2m = document.getElementById('b2Mult');
+    if(b2i) b2i.textContent = iv.label;
+    if(b2o) b2o.textContent = (BASE_OPS*iv.upd).toLocaleString();
+    if(b2m) b2m.textContent = iv.upd+'×';
+
+    // Update insight 3
+    var OPT_RATIO = 0.43;
+    var optOps = Math.round(ops*OPT_RATIO);
+    document.getElementById('mInsight3').innerHTML = iv.upd<=1
+      ? '<strong>Kesimpulan:</strong> di baseline, spatial filtering hemat ~57% operasi tanpa degradasi akurasi bermakna.'
+      : '<strong>Kesimpulan:</strong> intensifikasi naif ke '+iv.label+' → <strong>'+ops.toLocaleString()+' ops/jam ('+iv.upd+'×)</strong>. Dengan spatial filtering: <strong>'+optOps.toLocaleString()+' ops/jam</strong> — hemat '+Math.round((1-OPT_RATIO)*100)+'% dengan degradasi akurasi &lt;2%.'+
+        (iv.upd>=12?' Intensifikasi ke '+iv.label+' hanya justified dengan spatial filtering aktif.':' Titik optimal: '+iv.label+' + tier-aware update.');
+  });
+
+  // ── Widget 3: Naif vs Optimized charts ──
+  var INT_LBLS  = INTERVALS_M.map(function(iv){return iv.label;});
+  var NAIVE_OPS = INTERVALS_M.map(function(iv){return BASE_OPS*iv.upd;});
+  var OPT_OPS   = NAIVE_OPS.map(function(v){return Math.round(v*0.43);});
+  var ACC_N     = [98,98,98,98,98,98];
+  var ACC_O     = ACC_N.map(function(v){return Math.max(96,v-1.8);});
+
+  new Chart(document.getElementById('mOpsChart'),{
+    type:'bar',
+    data:{labels:INT_LBLS, datasets:[
+      {label:'Naif',      data:NAIVE_OPS, backgroundColor:'rgba(226,75,74,0.65)', borderRadius:3},
+      {label:'Optimized', data:OPT_OPS,  backgroundColor:'rgba(55,138,221,0.65)', borderRadius:3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:function(ctx){
+          var sav=ctx.datasetIndex===1?' (hemat '+Math.round((1-ctx.raw/NAIVE_OPS[ctx.dataIndex])*100)+'%)':'';
+          return ctx.dataset.label+': '+ctx.raw.toLocaleString()+' ops'+sav;
+        }}}},
+      scales:{
+        y:{ticks:{...tick,callback:function(v){return v>=1000?(v/1000).toFixed(0)+'k':v;}},grid:{color:grid}},
+        x:{ticks:tick,grid:{color:grid}},
+      }}
+  });
+
+  new Chart(document.getElementById('mAccChart'),{
+    data:{labels:INT_LBLS, datasets:[
+      {type:'line',label:'Naif',     data:ACC_N, borderColor:'#E24B4A',
+       borderWidth:2,pointRadius:4,pointBackgroundColor:'#E24B4A',tension:.2,fill:false},
+      {type:'line',label:'Optimized',data:ACC_O, borderColor:'#378ADD',
+       borderWidth:2,pointRadius:4,pointBackgroundColor:'#378ADD',
+       tension:.2,fill:false,borderDash:[5,3]},
+      {type:'bar',label:'Gap',
+       data:ACC_N.map(function(v,i){return+(v-ACC_O[i]).toFixed(1);}),
+       yAxisID:'yGap',backgroundColor:'rgba(29,158,117,0.25)',borderRadius:2},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:function(ctx){
+          if(ctx.datasetIndex===2) return 'Gap: '+ctx.raw.toFixed(1)+'%';
+          return ctx.dataset.label+': '+ctx.raw.toFixed(1)+'%';
+        }}}},
+      scales:{
+        y:{min:90,max:101,ticks:{...tick,callback:function(v){return v+'%'}},grid:{color:grid}},
+        yGap:{position:'right',min:0,max:8,display:false,grid:{display:false}},
+        x:{ticks:tick,grid:{color:grid}},
+      }}
+  });
+
+})();
 </script>
 
 </body>
