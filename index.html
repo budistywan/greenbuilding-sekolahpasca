@@ -70,6 +70,13 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
   position: absolute;
   top: 24px; left: 24px;
   pointer-events: auto;
+  background: rgba(10,14,26,0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-lg);
+  padding: 14px 18px;
+  max-width: 340px;
 }
 #hero-id .eyebrow {
   font-size: 9px; font-weight: 500;
@@ -78,15 +85,14 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 }
 #hero-id h1 {
   font-family: var(--font-d);
-  font-size: clamp(22px, 3vw, 32px);
+  font-size: clamp(20px, 2.6vw, 28px);
   color: #f0ede8;
-  line-height: 1.15;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  line-height: 1.18;
 }
 #hero-id h1 em { font-style: italic; color: var(--gold); }
 #hero-id .sub {
   font-size: 11px; color: rgba(240,237,232,0.5);
-  font-weight: 300; margin-top: 5px;
+  font-weight: 300; margin-top: 6px;
 }
 
 /* Top-right: camera controls */
@@ -131,24 +137,60 @@ body { font-family: var(--font-b); background: var(--surface); color: var(--ink)
 /* Bottom-center: scroll cue */
 #scroll-cue {
   position: absolute;
-  bottom: 28px; left: 50%;
+  bottom: 0; left: 50%;
   transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center;
-  gap: 6px; pointer-events: none;
+  pointer-events: none;
+  width: 100%;
 }
-#scroll-cue .sc-label {
-  font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
-  color: rgba(240,237,232,0.4); font-weight: 500;
+.sc-peek {
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(30,39,56,0) 0%, rgba(30,39,56,0.72) 60%, rgba(30,39,56,0.96) 100%);
+  padding: 48px 0 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
-#scroll-cue .sc-arrow {
-  width: 1px; height: 32px;
-  background: linear-gradient(to bottom, rgba(200,146,42,0.6), transparent);
-  animation: scrollPulse 2s ease-in-out infinite;
+.sc-label {
+  font-size: 10px; font-weight: 500; letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(240,237,232,0.9);
+  animation: blinkHint 2s ease-in-out infinite;
+}
+.sc-sub {
+  font-size: 11px; color: rgba(240,237,232,0.5);
+  font-weight: 300; letter-spacing: .04em;
+}
+.sc-arrow {
+  width: 1px; height: 28px;
+  background: linear-gradient(to bottom, rgba(200,146,42,0.8), transparent);
+  animation: scrollPulse 1.8s ease-in-out infinite;
+  margin-top: 4px;
+}
+@keyframes blinkHint {
+  0%,100% { opacity: 0.5; }
+  50%      { opacity: 1.0; }
 }
 @keyframes scrollPulse {
-  0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
-  50%       { opacity: 1.0; transform: scaleY(1.0); }
+  0%,100% { opacity: 0.3; transform: scaleY(0.7); }
+  50%      { opacity: 1.0; transform: scaleY(1.0); }
 }
+
+/* Peek strip — konten dashboard mengintip */
+.sc-peek-content {
+  display: flex; gap: 24px; align-items: center;
+  padding: 0 28px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.sc-peek-kpi {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.sc-peek-val {
+  font-family: var(--font-m); font-size: 18px; font-weight: 500; color: #f0ede8;
+  line-height: 1;
+}
+.sc-peek-val small { font-size: 10px; font-weight: 300; color: rgba(240,237,232,0.5); }
+.sc-peek-lbl { font-size: 9px; color: rgba(240,237,232,0.4); letter-spacing: .06em; text-transform: uppercase; }
+.sc-peek-div { width: 1px; height: 28px; background: rgba(255,255,255,0.12); }
 
 /* ── TRANSITION STRIP ── */
 .strip {
@@ -466,10 +508,34 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
       </div>
     </div>
 
-    <!-- Scroll cue -->
+    <!-- Scroll cue + peek -->
     <div id="scroll-cue">
-      <div class="sc-label">scroll</div>
-      <div class="sc-arrow"></div>
+      <div class="sc-peek">
+        <div class="sc-peek-content">
+          <div class="sc-peek-kpi">
+            <div class="sc-peek-val">61 <small>/ 100</small></div>
+            <div class="sc-peek-lbl">Greenship Score</div>
+          </div>
+          <div class="sc-peek-div"></div>
+          <div class="sc-peek-kpi">
+            <div class="sc-peek-val">187 <small>kWh/m²</small></div>
+            <div class="sc-peek-lbl">EUI Aktual</div>
+          </div>
+          <div class="sc-peek-div"></div>
+          <div class="sc-peek-kpi">
+            <div class="sc-peek-val">+0.3 <small>PMV</small></div>
+            <div class="sc-peek-lbl">Thermal Comfort</div>
+          </div>
+          <div class="sc-peek-div"></div>
+          <div class="sc-peek-kpi">
+            <div class="sc-peek-val">68 <small>%</small></div>
+            <div class="sc-peek-lbl">Avg Occupancy</div>
+          </div>
+        </div>
+        <div class="sc-label">↓ Dashboard operasional</div>
+        <div class="sc-sub">Greenship · Energi · Thermal · Occupancy</div>
+        <div class="sc-arrow"></div>
+      </div>
     </div>
 
   </div>
