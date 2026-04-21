@@ -891,6 +891,7 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
     </div>
     <div style="display:flex;align-items:center;gap:16px">
       <div class="live-badge"><div class="live-dot"></div>Live</div>
+      <div id="api-status-badge" style="font-family:var(--font-m);font-size:9px;letter-spacing:.06em;color:rgba(240,237,232,0.3);display:none">· OWM</div>
       <div class="param-chevron" id="paramChevron">▾</div>
     </div>
   </button>
@@ -955,8 +956,11 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
           </div>
           <input type="range" class="param-range" id="sl-hour" min="0" max="1439" value="540" step="15"
             oninput="onParamChange()">
-          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);margin-top:2px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);flex:1">
             <span>00:00</span><span>Terbit ~05:48</span><span>Puncak ~11:50</span><span>Benam ~17:52</span><span>24:00</span>
+            </div>
+            <span id="src-hour" style="font-family:var(--font-m);font-size:9px;color:rgba(200,146,42,0.6);margin-left:10px;white-space:nowrap"></span>
           </div>
         </div>
 
@@ -967,8 +971,11 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
           </div>
           <input type="range" class="param-range" id="sl-temp" min="20" max="40" value="29" step="0.5"
             oninput="onParamChange()">
-          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);margin-top:2px">
-            <span>20°C</span><span>Nyaman 24–28°C</span><span>40°C</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);flex:1">
+              <span>20°C</span><span>Nyaman 24–28°C</span><span>40°C</span>
+            </div>
+            <span id="src-temp" style="font-family:var(--font-m);font-size:9px;color:rgba(200,146,42,0.6);margin-left:10px;white-space:nowrap"></span>
           </div>
         </div>
 
@@ -979,8 +986,11 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
           </div>
           <input type="range" class="param-range" id="sl-humid" min="40" max="100" value="72" step="1"
             oninput="onParamChange()">
-          <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);margin-top:2px">
-            <span>40%</span><span>Target &lt;70%</span><span>100%</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(240,237,232,0.2);flex:1">
+              <span>40%</span><span>Target &lt;70%</span><span>100%</span>
+            </div>
+            <span id="src-humid" style="font-family:var(--font-m);font-size:9px;color:rgba(200,146,42,0.6);margin-left:10px;white-space:nowrap"></span>
           </div>
         </div>
 
@@ -999,7 +1009,10 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
 
       <!-- Sky condition -->
       <div>
-        <div style="font-size:9px;color:rgba(240,237,232,0.35);letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px">Kondisi langit</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:9px;color:rgba(240,237,232,0.35);letter-spacing:.10em;text-transform:uppercase">Kondisi langit</div>
+          <span id="src-sky" style="font-family:var(--font-m);font-size:9px;color:rgba(200,146,42,0.6);white-space:nowrap"></span>
+        </div>
         <div class="sky-btns">
           <button class="sky-btn active" id="sky-sunny"   onclick="setSky('sunny',this)">☀ Cerah<br><span style="font-size:9px;opacity:.6">Solar 1.0×</span></button>
           <button class="sky-btn"        id="sky-partial" onclick="setSky('partial',this)">⛅ Berawan sebagian<br><span style="font-size:9px;opacity:.6">Solar 0.6×</span></button>
@@ -1750,6 +1763,674 @@ input[type=range].param-range { width: 100%; accent-color: var(--gold); }
       </div>
       <div class="mth-insight" id="mInsight3" style="margin-top:12px">
         <strong>Kesimpulan:</strong> intensifikasi naif ke 5 menit menghasilkan 14.520 ops/jam — <strong>12× baseline</strong> — tanpa gain akurasi. Dengan spatial filtering: <strong>~6.200 ops/jam</strong> — 5× baseline — dengan degradasi akurasi &lt;2%. Titik optimal: <strong>interval 10–15 menit + spatial filtering</strong>.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SECTION: FUTURE RESEARCH APPROACH
+══════════════════════════════════════════ -->
+<style>
+/* ── RESEARCH SECTION ── */
+#research-section {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+}
+.rs-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 64px 40px 80px;
+}
+.rs-header {
+  margin-bottom: 64px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+.rs-eyebrow {
+  font-family: var(--font-m);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.rs-title {
+  font-family: var(--font-d);
+  font-size: 32px;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.rs-title em { font-style: italic; color: var(--teal); }
+.rs-subtitle {
+  font-size: 13px;
+  color: var(--gray);
+  line-height: 1.7;
+  max-width: 560px;
+}
+.rs-meta {
+  display: flex;
+  gap: 20px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.rs-meta-item {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: .06em;
+}
+.rs-meta-item::before { content: '· '; }
+.rs-meta-item:first-child::before { content: ''; }
+
+/* Section block */
+.rs-section {
+  margin-bottom: 72px;
+}
+.rs-section-num {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.rs-section-title {
+  font-family: var(--font-d);
+  font-size: 22px;
+  color: var(--ink);
+  line-height: 1.25;
+  margin-bottom: 20px;
+}
+.rs-prose {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #2a2825;
+}
+.rs-prose p { margin-bottom: 16px; }
+.rs-prose p:last-child { margin-bottom: 0; }
+.rs-prose strong { font-weight: 500; color: var(--ink); }
+.rs-prose em { font-style: italic; }
+
+/* Pull quote */
+.rs-quote {
+  border-left: 3px solid var(--gold);
+  margin: 28px 0;
+  padding: 18px 24px;
+  background: var(--gold-lt);
+  border-radius: 0 var(--r) var(--r) 0;
+}
+.rs-quote p {
+  font-family: var(--font-d);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0;
+}
+.rs-quote cite {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-m);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gray);
+  font-style: normal;
+}
+
+/* Block: komputasi */
+.rs-block-comp {
+  background: var(--ink);
+  border-radius: var(--r-lg);
+  padding: 22px 26px;
+  margin: 24px 0;
+}
+.rs-block-label {
+  font-family: var(--font-m);
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.rs-block-label.gold { color: var(--gold); }
+.rs-block-label.teal { color: #5dcaa5; }
+.rs-block-label.blue { color: #85b7eb; }
+.rs-block-label.gray { color: var(--gray); }
+.rs-block-body {
+  font-family: var(--font-m);
+  font-size: 11.5px;
+  line-height: 2.0;
+  color: #c8c4bc;
+  white-space: pre-wrap;
+}
+.rs-block-body .hl  { color: #e8c87a; font-weight: 500; }
+.rs-block-body .grn { color: #7ecfbf; }
+.rs-block-body .blu { color: #85b7eb; }
+.rs-block-body .red { color: #f09595; }
+.rs-block-body .dim { color: #5a5752; }
+.rs-block-body .sep { color: #3a3834; }
+
+/* Block: persamaan */
+.rs-block-eq {
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 22px 26px;
+  margin: 24px 0;
+}
+.rs-eq-body {
+  font-family: var(--font-m);
+  font-size: 13px;
+  line-height: 2.2;
+  color: var(--ink);
+  overflow-x: auto;
+}
+.rs-eq-note {
+  font-size: 11px;
+  color: var(--gray);
+  line-height: 1.6;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 0.5px solid var(--border);
+}
+.rs-eq-note span { font-family: var(--font-m); color: var(--ink); font-size: 11px; }
+
+/* Block: literatur */
+.rs-block-lit {
+  border: 0.5px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin: 24px 0;
+}
+.rs-lit-head {
+  background: var(--surface);
+  padding: 10px 16px;
+  font-family: var(--font-m);
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gray);
+  border-bottom: 0.5px solid var(--border);
+}
+.rs-lit-item {
+  padding: 14px 16px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--white);
+}
+.rs-lit-item:last-child { border-bottom: none; }
+.rs-lit-ref {
+  font-family: var(--font-m);
+  font-size: 11px;
+  color: var(--ink);
+  font-weight: 500;
+  margin-bottom: 3px;
+  line-height: 1.5;
+}
+.rs-lit-journal {
+  font-size: 11px;
+  color: var(--gray);
+  margin-bottom: 5px;
+  font-style: italic;
+}
+.rs-lit-note {
+  font-size: 11px;
+  color: #4a4845;
+  line-height: 1.6;
+}
+.rs-lit-gap {
+  font-size: 10px;
+  color: var(--red);
+  font-family: var(--font-m);
+  margin-top: 4px;
+}
+
+/* Divider */
+.rs-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 56px 0;
+}
+</style>
+
+<section id="research-section">
+  <div class="rs-page">
+
+    <div class="rs-header">
+      <div class="rs-eyebrow">Research Direction</div>
+      <div class="rs-title">Future Research <em>Approach</em></div>
+      <div class="rs-subtitle">Formalisasi masalah keputusan operasional gedung pendidikan sebagai closed-loop adaptive DSS — dari argumen gap hingga arsitektur sistem yang dapat divalidasi secara empiris.</div>
+      <div class="rs-meta">
+        <span class="rs-meta-item">Building and Environment · target venue</span>
+        <span class="rs-meta-item">SPs UNDIP Gedung A &amp; B · 110 ruang · site</span>
+        <span class="rs-meta-item">Iklim tropis lembab · Köppen Af · konteks</span>
+      </div>
+    </div>
+
+    <!-- ── SECTION 1 ── -->
+    <div class="rs-section">
+      <div class="rs-section-num">01 · Problem Framing</div>
+      <div class="rs-section-title">The Setpoint as a Decision Under Uncertainty</div>
+
+      <div class="rs-prose">
+        <p>Operational management of HVAC systems in educational buildings is conventionally reduced to a scalar decision: the temperature setpoint. This reduction is not irrational — it reflects the absence of a system capable of evaluating higher-dimensional alternatives in real time. The setpoint, once fixed, functions as a static proxy for a dynamic optimization problem it was never designed to solve.</p>
+        <p>The optimization problem it is proxying for has the following structure: minimize aggregate AC energy consumption while maximizing the fraction of rooms within the thermal comfort zone — two objectives that are conflictual by definition. No single setpoint dominates both simultaneously across the full operational day.</p>
+      </div>
+
+      <div class="rs-block-comp">
+        <div class="rs-block-label gold">Struktur masalah formal</div>
+        <div class="rs-block-body"><span class="hl">minimize</span>    Σᵢ AC_load_i(t)                    <span class="dim">← EEC objective</span>
+<span class="hl">maximize</span>    |{i : |PMV_i(t)| ≤ 0.5}| / N       <span class="dim">← IHC objective</span>
+<span class="dim">subject to</span>  T_room,i = f(T_out, occ_i, solar_i, SP_i)
+            SP_i ∈ [T_min, T_max]
+            ∀i ∈ {1,...,N},  ∀t ∈ T_operational
+
+<span class="dim">─────────────────────────────────────────────────</span>
+N = 110 ruang · |T_operational| = jam operasional
+Dua objektif konfliktual: tidak ada solusi dominan</div>
+      </div>
+
+      <div class="rs-quote">
+        <p>"Static setpoints encode an implicit weighting between energy and comfort that was never explicitly decided, is never reviewed, and cannot adapt to the conditions it is meant to manage."</p>
+      </div>
+
+      <div class="rs-block-eq">
+        <div class="rs-block-label gold" style="margin-bottom:10px">Bobot implisit dalam setpoint statis</div>
+        <div class="rs-eq-body">SP* = argmin_SP [ w · EEC(SP) − (1−w) · IHC(SP) ]</div>
+        <div class="rs-eq-note">dimana <span>w</span> tidak pernah dielisitasi secara eksplisit — tertanam dalam keputusan historis yang tidak terdokumentasi. Sistem yang diusulkan mengeksternalisasi bobot ini menjadi parameter yang dapat dikonfigurasi dan ditinjau.</div>
+      </div>
+
+      <div class="rs-block-lit">
+        <div class="rs-lit-head">Literatur · positioning</div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Fanger, P.O. (1970). Thermal Comfort: Analysis and Applications in Environmental Engineering.</div>
+          <div class="rs-lit-note">Basis PMV model. Mendefinisikan comfort zone sebagai PMV ∈ [−0.5, +0.5] — target operasional IHC dalam sistem ini. Asumsi: steady-state, controlled conditions.</div>
+          <div class="rs-lit-gap">Limitasi yang relevan: tidak dirancang untuk real-time adaptive control.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">ASHRAE Standard 55 (2017). Thermal Environmental Conditions for Human Occupancy.</div>
+          <div class="rs-lit-note">Operasionalisasi comfort zone yang digunakan sebagai ground truth dalam validasi survei PMV.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Mardani, A., Zavadskas, E.K., et al. (2016). A review of MCDM applications to solve energy management problems. Renewable and Sustainable Energy Reviews.</div>
+          <div class="rs-lit-note">MCDM sebagai kerangka formal untuk masalah dengan kriteria konfliktual.</div>
+          <div class="rs-lit-gap">Gap: mayoritas aplikasi MCDM di domain energi bersifat planning-level, bukan real-time operational dengan input dinamis.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rs-divider">
+
+    <!-- ── SECTION 2 ── -->
+    <div class="rs-section">
+      <div class="rs-section-num">02 · Variability Analysis</div>
+      <div class="rs-section-title">Sources of Variability: Why the Scalar Reduction Fails</div>
+
+      <div class="rs-prose">
+        <p>The setpoint-as-scalar-decision fails not because of poor calibration, but because the underlying problem is not scalar. Three sources of variability render any fixed setpoint suboptimal across a non-trivial fraction of the operational space.</p>
+        <p><strong>Temporal variability.</strong> Solar irradiance incident on a given facade follows a deterministic function of solar angle — predictable, but varying continuously. In Semarang's geographic position (6.99°S), the diurnal outdoor temperature range reaches 6–8°C on clear days, driving infiltration heat load that a static setpoint cannot compensate for without overcooling at one end or undercooling at the other.</p>
+        <p><strong>Spatial variability.</strong> Two spaces with identical HVAC specifications may exhibit divergent thermal behavior of 1.5–2°C under identical external conditions — from aging seals, different glazing transmittance, duct asymmetry, or AC units operating below rated efficiency.</p>
+        <p><strong>Occupancy-driven variability.</strong> Metabolic heat load scales directly with actual occupancy. A room scheduled for 40 occupants but hosting 12 carries 70% less metabolic load — a thermal discrepancy of approximately 1.5°C that propagates directly into PMV error. This is not random noise; it is systematic and directional.</p>
+      </div>
+
+      <div class="rs-block-comp">
+        <div class="rs-block-label gold">Kuantifikasi dampak per sumber variabilitas</div>
+        <div class="rs-block-body"><span class="grn">TEMPORAL</span>
+  ΔT_solar,i(08:00) vs ΔT_solar,i(13:00)  <span class="dim">→ beda hingga 3.8°C fasad aktif</span>
+  Setpoint optimal berbeda                  <span class="dim">→ ~1.5–2°C</span>
+
+<span class="grn">SPASIAL</span>
+  β_solar,i aktual vs default (4.0)         <span class="dim">→ deviasi ±0.8–1.5°C per ruang</span>
+  Tidak dapat dikompensasi                  <span class="dim">→ tanpa per-room observability</span>
+
+<span class="grn">OKUPANSI</span>
+  n_scheduled = 40,  n_aktual = 12
+  ΔT_orang: 2.2°C   vs   0.66°C
+  Error thermal                             <span class="dim">→ ~1.54°C</span>
+  PMV error                                 <span class="dim">→ ~0.46 (hampir satu kategori)</span>
+
+<span class="dim">─────────────────────────────────────────────────</span>
+Akumulasi ketiga sumber pada kondisi puncak:
+  error kumulatif bisa mencapai 3–4°C
+  dari kondisi optimal — menempatkan ruang
+  di luar zona nyaman meski setpoint "benar"</div>
+      </div>
+
+      <div class="rs-block-lit">
+        <div class="rs-lit-head">Literatur · positioning</div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Candanedo, L.M. &amp; Feldheim, V. (2016). Accurate occupancy detection of an office room from light, temperature, humidity and CO₂ measurements. Energy and Buildings, 112, 28–39.</div>
+          <div class="rs-lit-note">Deviasi okupansi sebagai sumber error sistematis dalam model energi bangunan. 466 sitasi.</div>
+          <div class="rs-lit-gap">Limitasi: single office room, iklim temperate. Gap: belum ada studi serupa untuk multi-room educational building di iklim tropis.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Yang, J., Santamouris, M. &amp; Lee, S.E. (2016). Review of occupancy sensing systems for institutional buildings. Energy and Buildings, 121, 344–349.</div>
+          <div class="rs-lit-note">Review occupancy modeling untuk institutional buildings. Mengidentifikasi schedule-based model sebagai dominant approach — dengan limitasi yang sama yang diaddress penelitian ini.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Bienvenido-Huertas, D. &amp; Rubio-Bellido, C. (2021). Adaptive Thermal Comfort Models for Buildings. Springer Briefs in Architectural Design and Technology.</div>
+          <div class="rs-lit-note">PMV statis secara sistematis overestimate atau underestimate di kondisi lapangan aktual — memotivasi adaptive correction yang diusulkan di Section 4.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rs-divider">
+
+    <!-- ── SECTION 3 ── -->
+    <div class="rs-section">
+      <div class="rs-section-num">03 · Occupancy Estimation</div>
+      <div class="rs-section-title">The Occupancy Problem: A Bayesian Formulation</div>
+
+      <div class="rs-prose">
+        <p>The occupancy estimation problem in educational buildings has a specific structure. Two information sources are available with complementary failure modes: scheduled occupancy provides a deterministic prior — always available, but encoding planned rather than actual presence, with systematic bias toward overestimation. Camera-based counting provides a likelihood update — direct visual evidence at per-minute resolution, but subject to accumulating error from occlusion and detection failures.</p>
+        <p>The appropriate formulation is Bayesian: the schedule provides the prior distribution over likely occupancy; camera observations update that prior conditioned on detection reliability. When cameras fail, the system degrades gracefully to schedule-based estimates — a property of the design, not an exception handler added post-hoc.</p>
+      </div>
+
+      <div class="rs-block-eq">
+        <div class="rs-block-label teal" style="margin-bottom:10px">Bayesian occupancy fusion</div>
+        <div class="rs-eq-body">n̂ᵢ(t) = argmax_n  P(n | z_sched,i(t), z_cctv,i(t))
+
+P(n | z_sched, z_cctv)  ∝  P(z_cctv | n) · P(n | z_sched)
+                              ↑ likelihood   ↑ prior
+                              kamera         jadwal
+
+Prior:      P(n | z_sched)   = 𝒩(μ_sched,  σ²_sched)
+Likelihood: P(z_cctv | n)    = 𝒩(ρ·n,      σ²_cctv)
+
+Posterior analitik:
+  n̂ᵢ = (σ²_sched · z_cctv/ρ  +  σ²_cctv · μ_sched)
+        ─────────────────────────────────────────────
+                    σ²_sched + σ²_cctv</div>
+        <div class="rs-eq-note">
+          <span>ρ</span> = detection rate per kamera per ruang, dikalibrasi dari ground truth spot-check. &nbsp;
+          <span>σ²_sched</span> diestimasi dari historical deviation selama fase kalibrasi awal. &nbsp;
+          Properti kritis: σ²_cctv → ∞ ⟹ n̂ᵢ → μ_sched (graceful fallback saat kamera dropout).
+        </div>
+      </div>
+
+      <div class="rs-block-comp">
+        <div class="rs-block-label teal">Karakteristik error per sumber</div>
+        <div class="rs-block-body"><span class="grn">JADWAL (prior)</span>
+  σ²_sched   <span class="dim">→ diestimasi dari historical deviation (fase kalibrasi 2 minggu)</span>
+  Bias arah  <span class="dim">→ overestimate ~20–35% di non-examination periods</span>
+  Failure    <span class="dim">→ acara non-reguler, penggunaan ad-hoc</span>
+
+<span class="grn">KAMERA (likelihood)</span>
+  ρ          <span class="dim">→ dikalibrasi per kamera per ruang (angle, oklusi berbeda)</span>
+  Error type <span class="dim">→ accumulating (missed entry/exit propagates as bias)</span>
+  Failure    <span class="dim">→ cahaya rendah, oklusi parah, hardware dropout</span>
+
+<span class="grn">POSTERIOR</span>
+  σ²_post &lt; min(σ²_sched, σ²_cctv)
+  <span class="dim">→ fusion selalu lebih baik dari sumber tunggal</span>
+  <span class="dim">   jika error antar sumber tidak berkorelasi penuh</span>
+
+<span class="dim">Asumsi yang perlu divalidasi empiris:</span>
+<span class="dim">independence antara error jadwal dan error kamera</span>
+<span class="dim">— mungkin dilanggar saat acara besar non-jadwal</span></div>
+      </div>
+
+      <div class="rs-quote">
+        <p>"The fusion framework is designed to be right most of the time, and gracefully wrong the rest."</p>
+      </div>
+
+      <div class="rs-block-lit">
+        <div class="rs-lit-head">Literatur · positioning</div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Hobson, B.W., Lowcay, D., Gunay, H.B., et al. (2019). Opportunistic occupancy-count estimation using sensor fusion: A case study. Building and Environment, 159, 106154.</div>
+          <div class="rs-lit-note">Metodologi terdekat. Sensor fusion untuk occupancy estimation dalam building context.</div>
+          <div class="rs-lit-gap">Perbedaan: single-building office, bukan multi-room educational building dengan jadwal berbeda per ruang.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Sun, K., et al. (2024). High-accuracy occupancy counting at crowded entrances for smart buildings. Energy and Buildings.</div>
+          <div class="rs-lit-note">Camera-based people counting: akurasi ~98.1% dengan dua kamera surveillance. Relevan untuk parameterisasi ρ dan σ²_cctv per ruang.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Candanedo, L.M. &amp; Feldheim, V. (2016). [op.cit.]</div>
+          <div class="rs-lit-note">Basis kuantifikasi σ²_sched dari historical deviation antara jadwal dan kehadiran aktual.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rs-divider">
+
+    <!-- ── SECTION 4 ── -->
+    <div class="rs-section">
+      <div class="rs-section-num">04 · Adaptive Thermal Model</div>
+      <div class="rs-section-title">Per-Room Parameter Estimation: Every Room Has a Thermal Fingerprint</div>
+
+      <div class="rs-prose">
+        <p>A thermal model initialized with generic coefficients describes how a prototypical room <em>should</em> behave — not how any specific room <em>actually</em> behaves. Two rooms with identical specifications may require different control actions to achieve the same thermal outcome, because their actual thermal parameters diverge from nominal values in ways that are room-specific and not observable from design documents.</p>
+        <p>The appropriate response is not to discard the physics-based model — its structure captures causal relationships correctly. The appropriate response is to treat its coefficients as unknown parameters to be estimated from sensor observations over time. The thermal load model is linear in the parameters, which makes recursive least squares (RLS) the natural estimator.</p>
+      </div>
+
+      <div class="rs-block-eq">
+        <div class="rs-block-label blue" style="margin-bottom:10px">RLS dengan forgetting factor λ</div>
+        <div class="rs-eq-body">θᵢ = [β_solar,i,  β_orang,i,  β_infil,i]ᵀ     (per ruang)
+
+φᵢ(t) = [ΔT_solar,i(t),  ΔT_orang,i(t),  ΔT_out,eff(t)]ᵀ
+
+T̂_model,i(t) = θᵢ(t−1)ᵀ · φᵢ(t)
+
+Kᵢ(t) = P_i(t−1)φᵢ(t) / [λ + φᵢᵀ(t)P_i(t−1)φᵢ(t)]
+
+θᵢ(t) = θᵢ(t−1) + Kᵢ(t) · [T_sensor,i(t) − T̂_model,i(t)]
+                               ↑ innovation: selisih prediksi vs sensor
+
+Pᵢ(t) = (1/λ) · [I − Kᵢ(t)φᵢᵀ(t)] · Pᵢ(t−1)</div>
+        <div class="rs-eq-note">
+          <span>λ = 0.98</span> diusulkan sebagai titik awal — effective memory ≈ 50 observasi. &nbsp;
+          <span>λ = 1.0</span>: standard LS tanpa forgetting. &nbsp;
+          <span>λ → 0</span>: hanya observasi terbaru. &nbsp;
+          Sensitivitas terhadap pilihan λ adalah bagian dari validasi eksperimental.
+        </div>
+      </div>
+
+      <div class="rs-block-comp">
+        <div class="rs-block-label blue">Interpretasi parameter yang diadaptasi</div>
+        <div class="rs-block-body"><span class="blu">β_solar,i</span>   default: 4.0
+  <span class="dim">↓ turun jika:</span> kaca tinted, ada overhang, orientasi tidak aktif
+  <span class="dim">↑ naik jika:</span>  kaca bening, fasad langsung terekspos
+
+<span class="blu">β_orang,i</span>   default: 0.055 °C/orang
+  <span class="dim">↑ naik jika:</span>  ventilasi buruk, densitas lebih tinggi dari nominal
+  <span class="dim">↓ turun jika:</span> ruang berventilasi baik, occupancy konsisten rendah
+
+<span class="blu">β_infil,i</span>   default: 0.35
+  <span class="dim">↑ naik jika:</span>  segel pintu/jendela menua, AC tidak efisien
+  <span class="dim">↓ turun jika:</span> insulasi baik, ruang interior
+
+<span class="dim">─────────────────────────────────────────────────────</span>
+Convergence expectation (λ = 0.98, update per 5 mnt):
+  ~50 observasi  → ~4 jam → konvergensi awal
+  ~250 observasi → ~21 jam → stabilisasi
+
+Asumsi kritis yang perlu divalidasi:
+  Linieritas model dalam θᵢ —
+  valid jika interaksi antar komponen beban kecil.
+  Persistency of excitation: variasi harian φᵢ(t)
+  harus cukup untuk mengeksitasi semua parameter.</div>
+      </div>
+
+      <div class="rs-quote">
+        <p>"After sufficient observation, each room carries a parameter vector that encodes its actual thermal behavior — not its designed behavior."</p>
+      </div>
+
+      <div class="rs-block-lit">
+        <div class="rs-lit-head">Literatur · positioning</div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Ljung, L. (1999). System Identification: Theory for the User, 2nd ed. Prentice Hall.</div>
+          <div class="rs-lit-note">Fondasi teoritis RLS dan forgetting factor. Konvergensi dan stabilitas dalam kondisi non-stationary.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Ghaddar, D., Itani, M., Ghaddar, N. &amp; Ghali, K. (2021). Model-based adaptive controller for personalized ventilation and thermal comfort. Building Simulation, 14, 1757–1771.</div>
+          <div class="rs-lit-note">Adaptive model-based controller untuk thermal comfort — pendekatan terdekat dalam literatur.</div>
+          <div class="rs-lit-gap">Perbedaan: naturally ventilated space, single-zone. Kami: per-room HVAC building dengan 110 ruang.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Online learning for personalized thermal comfort via adaptive stochastic modeling. Energy and Buildings (2015).</div>
+          <div class="rs-lit-note">Online learning untuk thermal comfort modeling.</div>
+          <div class="rs-lit-gap">Perbedaan target: paper tersebut mengadaptasi preferensi personal per individu. Kami mengadaptasi parameter fisik per ruang.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rs-divider">
+
+    <!-- ── SECTION 5 ── -->
+    <div class="rs-section">
+      <div class="rs-section-num">05 · MCDM Formulation</div>
+      <div class="rs-section-title">Structuring the Trade-off: MCDM as the Decision Language</div>
+
+      <div class="rs-prose">
+        <p>The energy-comfort trade-off has a well-defined mathematical structure: a bi-objective optimization problem over a discrete set of operational alternatives, evaluated against two criteria that are both dynamic and conflictual. MCDM provides the appropriate framework — not because it resolves the conflict, but because it makes the trade-off explicit, quantifiable, and context-dependent rather than implicit and static.</p>
+        <p>The weighting scheme is not elicited from the operator at runtime. It is structured into the system through temporal weighting of IHC — reflecting the operational judgment that peak hours (11:00–15:00) are disproportionately consequential for occupant experience, representing only ~30% of the operational day but carrying the highest thermal stress. The specific values are design choices that require sensitivity analysis: a change in weighting changes the ranking of alternatives and therefore the recommendations produced.</p>
+      </div>
+
+      <div class="rs-block-eq">
+        <div class="rs-block-label gold" style="margin-bottom:10px">IHC berbobot temporal</div>
+        <div class="rs-eq-body">f(h) = |{i : |PMV_i(h)| ≤ 0.5}| / N     (fraksi ruang nyaman jam h)
+
+IHC = w_p · f̄_peak  +  w_n · f̄_non-peak
+
+f̄_peak    = (1/|H_peak|)    · Σ_{h ∈ H_peak}    f(h)
+f̄_non-peak = (1/|H_non|)    · Σ_{h ∈ H_non}     f(h)
+
+w_p = 0.30,  H_peak = {11, 12, 13, 14, 15}
+w_n = 0.70,  H_non  = {7, 8, 9, 10, 16, 17}
+
+Output per ruang:
+  rec_i = argmax_{a ∈ A} [ ΔPMV_i(a),  ΔAC_load_i(a) ]
+  → keduanya dilaporkan ke operator sebelum komitmen</div>
+        <div class="rs-eq-note">
+          Sensitivitas yang perlu diuji: apakah ranking alternatif berubah jika <span>w_p</span> digeser dari 0.30 ke 0.40? Apakah rekomendasi per ruang stabil terhadap noise di <span>θᵢ</span>?
+        </div>
+      </div>
+
+      <div class="rs-block-comp">
+        <div class="rs-block-label gold">Kompleksitas komputasi yang muncul</div>
+        <div class="rs-block-body"><span class="dim">Setpoint statis:</span>
+  1 parameter × 1 gedung  <span class="dim">= 1 keputusan</span>
+
+<span class="dim">DSS per ruang:</span>
+  k alternatif × 110 ruang × m jam evaluasi
+  = ratusan hingga ribuan evaluasi per update
+
+  Dengan k = 3, m = 11:
+  3 × 110 × 11 <span class="hl">= 3.630</span> evaluasi thermal model/siklus
+
+<span class="dim">Ketiga input berubah secara asinkron:</span>
+  Occupancy estimate  <span class="dim">→ dari fusion engine (per menit)</span>
+  Parameter θᵢ        <span class="dim">→ dari adaptive model (per observasi sensor)</span>
+  Kondisi cuaca       <span class="dim">→ dari weather station (per jam)</span>
+
+<span class="dim">Sinkronisasi antar pipeline adalah masalah</span>
+<span class="dim">desain yang non-trivial dan belum diaddress</span>
+<span class="dim">dalam literatur building DSS.</span></div>
+      </div>
+
+      <div class="rs-quote">
+        <p>"The system does not decide for the operator. It makes the consequences of each decision visible before the decision is made."</p>
+      </div>
+
+      <div class="rs-block-lit">
+        <div class="rs-lit-head">Literatur · positioning</div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Mardani, A., Zavadskas, E.K., et al. (2016). A review of MCDM applications to solve energy management problems: Two decades from 1995 to 2015. Renewable and Sustainable Energy Reviews.</div>
+          <div class="rs-lit-note">Survey komprehensif MCDM untuk energy management.</div>
+          <div class="rs-lit-gap">Gap: mayoritas aplikasi planning-level dan static. Real-time MCDM dengan input dinamis dari adaptive model belum diaddress.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Siksnelyte-Butkiene, I., Zavadskas, E.K. &amp; Streimikiene, D. (2020). Multi-criteria decision-making for renewable energy technologies in a household. Energies, 13.</div>
+          <div class="rs-lit-note">Basis untuk memotivasi temporal weighting dalam energy-comfort MCDM.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rs-divider">
+
+    <!-- ── SECTION 6 ── -->
+    <div class="rs-section">
+      <div class="rs-section-num">06 · Digital Twin & Computational Cost</div>
+      <div class="rs-section-title">The Medium and Its Cost: Spatialization Is Not Free</div>
+
+      <div class="rs-prose">
+        <p>The digital twin in this system serves a specific function: it is the evaluation engine through which the MCDM framework assesses consequences before a decision is committed. The 3D spatial visualization is secondary — a medium for making room-level decisions spatially intelligible to the operator, not a contribution in itself.</p>
+        <p>The digital twin literature has largely focused on demonstrating feasibility — building systems that work — rather than analyzing the computational cost of their operation at scale. Most demonstrator systems operate at coarse granularity (building or zone level) where computational load is manageable. The situation changes fundamentally when the unit of analysis shifts to the room level, update frequency increases to sub-hourly, and the model must adapt continuously from streaming sensor data.</p>
+        <p>Three dimensions of computational complexity interact multiplicatively — not additively. Increasing spatial resolution multiplies the cost of every temporal update. Adaptive learning adds a background burden that competes with foreground recommendation serving. Characterizing this efficiency-accuracy frontier empirically, for a 110-room educational building, is a contribution the literature has not yet made.</p>
+      </div>
+
+      <div class="rs-block-comp">
+        <div class="rs-block-label gray">Tiga dimensi kompleksitas — interaksi multiplicative</div>
+        <div class="rs-block-body"><span class="grn">SPATIAL RESOLUTION</span>
+  Coarse (1 zona/gedung)    <span class="dim">→  2 evaluasi/update</span>
+  Medium (1 zona/lantai)    <span class="dim">→ 10 evaluasi/update</span>
+  Fine   (1 zona/ruang)     <span class="dim">→ 110 evaluasi/update</span>
+
+<span class="grn">TEMPORAL RESOLUTION</span>
+  1 jam    <span class="dim">→</span>   1 update/jam  <span class="dim">→</span>   <span class="hl">110</span> ops/jam
+  15 mnt   <span class="dim">→</span>   4 updates/jam <span class="dim">→</span>   <span class="hl">440</span> ops/jam
+  5 mnt    <span class="dim">→</span>  12 updates/jam <span class="dim">→</span> <span class="hl">1.320</span> ops/jam
+  1 mnt    <span class="dim">→</span>  60 updates/jam <span class="dim">→</span> <span class="hl">6.600</span> ops/jam
+
+<span class="grn">ADAPTIVE LEARNING (RLS per ruang)</span>
+  110 ruang × 3 parameter → 330 updates/observasi
+  Berjalan paralel dengan serving rekomendasi
+
+<span class="dim">─────────────────────────────────────────────────────</span>
+<span class="dim">Naif intensification (semua ruang, 5 mnt):</span>
+  <span class="red">14.520</span> thermal model evaluations/jam
+  <span class="red">12×</span> dari baseline — tanpa gain akurasi
+  jika model deterministik dan parameter statis
+
+<span class="dim">Dengan spatial filtering (tier-based):</span>
+  Tier 1: 28 ruang × 12/jam  <span class="dim">→</span>  336 ops/jam
+  Tier 2: 27 ruang ×  4/jam  <span class="dim">→</span>  108 ops/jam
+  Tier 3: 55 ruang ×  2/jam  <span class="dim">→</span>  110 ops/jam
+  Total: <span class="grn">~554 ops/jam → hemat ~57%</span>
+  Degradasi akurasi: <span class="grn">&lt;2%</span> (perlu validasi empiris)</div>
+      </div>
+
+      <div class="rs-block-eq">
+        <div class="rs-block-label gray" style="margin-bottom:10px">Decision divergence metric</div>
+        <div class="rs-eq-body">ΔD_{Va→Vb} = |R_Va △ R_Vb| / |R_Vb|
+
+R_k  = himpunan rekomendasi yang dihasilkan sistem variasi k
+△    = symmetric difference
+
+Pertanyaan empiris yang dijawab oleh progressive validation:
+  · Apakah ΔD_{V1→V7} signifikan?
+  · Pada variasi mana diminishing return mulai terjadi?
+  · Apakah ΔD_{V4→V5} > ΔD_{V5→V6}?
+    (apakah CCTV lebih mengubah keputusan dari smart meter?)</div>
+        <div class="rs-eq-note">
+          Metrik ini mengukur <span>berapa fraksi rekomendasi berubah</span> ketika sistem bergerak dari satu konfigurasi ke konfigurasi berikutnya — baik karena perbedaan resolusi komputasi maupun perbedaan kualitas input sensing.
+        </div>
+      </div>
+
+      <div class="rs-quote">
+        <p>"The system is not a pipeline — it is a feedback loop. Recommendations, once acted upon, alter the conditions the system subsequently learns from."</p>
+      </div>
+
+      <div class="rs-block-lit">
+        <div class="rs-lit-head">Literatur · positioning</div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Semeraro, C., Lezoche, M., Panetto, H. &amp; Dassisti, M. (2021). Digital twin paradigm: A systematic literature review. Computers in Industry, 130, 103469.</div>
+          <div class="rs-lit-note">Review komprehensif DT. Mendefinisikan DT sebagai adaptive models yang sync real-time.</div>
+          <div class="rs-lit-gap">Limitasi yang relevan: tidak membahas computational cost sebagai fungsi granularitas spasial dan temporal.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Boje, C., Guerriero, A., Kubicki, S. &amp; Rezgui, Y. (2020). Towards a semantic construction digital twin: Directions for future research. Automation in Construction, 114, 103179.</div>
+          <div class="rs-lit-note">Closing the control loop sebagai defining feature DT vs BIM statis.</div>
+          <div class="rs-lit-gap">Demonstrasi di level konstruksi, bukan operasional per ruang. Tidak ada analisis cost vs accuracy.</div>
+        </div>
+        <div class="rs-lit-item">
+          <div class="rs-lit-ref">Lu, Q., Parlikad, A.K., et al. (2020). Developing a digital twin at building and city levels: Case study of West Cambridge campus. Journal of Management in Engineering, 36, 05020004.</div>
+          <div class="rs-lit-note">DT untuk operational building management di level kampus.</div>
+          <div class="rs-lit-gap">Coarse spatial granularity. Tidak ada analisis efficiency-accuracy frontier sebagai fungsi resolusi. Gap yang diklaim paper ini belum ada dalam literatur building DT.</div>
+        </div>
       </div>
     </div>
 
@@ -3788,6 +4469,180 @@ waitAndInit();
         x:{ticks:tick,grid:{color:grid}},
       }}
   });
+
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     WEATHER API + LIVE CLOCK
+══════════════════════════════════════════ -->
+<script>
+(function() {
+
+  // ── Konfigurasi ──────────────────────────────────────────
+  // Koordinat SPs UNDIP Pleburan, Semarang
+  var LAT = -6.9932, LON = 110.4203;
+  // OpenWeatherMap API key — ganti dengan key aktif
+  // Daftar gratis di: https://openweathermap.org/api
+  var OWM_KEY = 'ca1825057da6c23e70194e126d4991c4';
+  var UPDATE_INTERVAL_MS = 10 * 60 * 1000; // 10 menit
+
+  // ── Flag: apakah user sudah override manual ───────────────
+  var userOverride = { temp: false, humid: false, sky: false };
+
+  // Saat slider digeser manual → tandai sebagai override
+  ['sl-temp','sl-humid'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function() {
+      if (id === 'sl-temp')  { userOverride.temp  = true; setSourceLabel('src-temp',  '· manual'); }
+      if (id === 'sl-humid') { userOverride.humid = true; setSourceLabel('src-humid', '· manual'); }
+    });
+  });
+
+  document.querySelectorAll('.sky-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      userOverride.sky = true;
+      setSourceLabel('src-sky', '· manual');
+    });
+  });
+
+  // ── Live clock WIB ────────────────────────────────────────
+  function tickClock() {
+    var now = new Date();
+    var wib = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    var h = wib.getHours(), m = wib.getMinutes();
+    var totalMin = h * 60 + m;
+
+    // Update PARAM dan slider jam — selalu dari WIB, tidak di-override
+    PARAM.hourMin = totalMin;
+    var slHour = document.getElementById('sl-hour');
+    if (slHour) slHour.value = totalMin;
+    setSourceLabel('src-hour', '· WIB live');
+
+    // Trigger KPI update tanpa mengubah param lain
+    if (typeof updateKPIs === 'function') updateKPIs();
+    if (typeof updateCesiumScene === 'function') updateCesiumScene();
+    if (typeof updateCesiumColors === 'function') updateCesiumColors();
+  }
+
+  // Tick setiap menit — sinkron ke awal menit berikutnya
+  function scheduleClockTick() {
+    tickClock();
+    var now = new Date();
+    var wib = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    var msToNextMin = (60 - wib.getSeconds()) * 1000 - wib.getMilliseconds();
+    setTimeout(function() {
+      tickClock();
+      setInterval(tickClock, 60000);
+    }, msToNextMin);
+  }
+
+  // ── OWM weather → mapping ke PARAM ───────────────────────
+  function owmIdToSky(id) {
+    if (id >= 200 && id < 700) return 'overcast';       // Thunderstorm, Drizzle, Rain, Snow, Atmosphere
+    if (id === 800)            return 'sunny';           // Clear sky
+    if (id === 801)            return 'partial';         // Few clouds (11–25%)
+    if (id === 802)            return 'partial';         // Scattered clouds (25–50%)
+    if (id >= 803)             return 'cloudy';          // Broken/overcast clouds (51–100%)
+    return 'sunny';
+  }
+
+  function setSourceLabel(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function applyWeatherData(data) {
+    var temp  = Math.round(data.main.temp * 10) / 10;
+    var humid = Math.round(data.main.humidity);
+    var sky   = owmIdToSky(data.weather[0].id);
+    var city  = data.name || 'Semarang';
+    var ts    = new Date(data.dt * 1000).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit' });
+
+    // Terapkan hanya jika belum di-override manual
+    if (!userOverride.temp) {
+      PARAM.temp = temp;
+      var slTemp = document.getElementById('sl-temp');
+      if (slTemp) slTemp.value = temp;
+      setSourceLabel('src-temp', '· OWM ' + ts);
+    }
+    if (!userOverride.humid) {
+      PARAM.humid = humid;
+      var slHumid = document.getElementById('sl-humid');
+      if (slHumid) slHumid.value = humid;
+      setSourceLabel('src-humid', '· OWM ' + ts);
+    }
+    if (!userOverride.sky) {
+      PARAM.sky = sky;
+      // Update sky button active state
+      document.querySelectorAll('.sky-btn').forEach(function(b) { b.classList.remove('active'); });
+      var skyBtn = document.getElementById('sky-' + sky);
+      if (skyBtn) skyBtn.classList.add('active');
+      setSourceLabel('src-sky', '· OWM ' + ts);
+    }
+
+    // Status badge
+    var badge = document.getElementById('api-status-badge');
+    if (badge) { badge.textContent = '· OWM ' + city + ' ' + ts; badge.style.display = 'inline'; }
+
+    // Trigger full update
+    if (typeof updateKPIs === 'function') updateKPIs();
+    if (typeof updateCesiumScene === 'function') updateCesiumScene();
+    if (typeof updateCesiumColors === 'function') updateCesiumColors();
+  }
+
+  function fetchWeather() {
+    // Jika API key belum diset, skip dengan graceful
+    if (!OWM_KEY || OWM_KEY === 'YOUR_OWM_API_KEY') {
+      console.log('[Weather] OWM API key belum diset. Parameter menggunakan nilai slider.');
+      setSourceLabel('src-temp',  '· slider');
+      setSourceLabel('src-humid', '· slider');
+      setSourceLabel('src-sky',   '· slider');
+      setSourceLabel('src-hour',  '· WIB live');
+      return;
+    }
+
+    var url = 'https://api.openweathermap.org/data/2.5/weather'
+      + '?lat=' + LAT + '&lon=' + LON
+      + '&appid=' + OWM_KEY
+      + '&units=metric';
+
+    fetch(url)
+      .then(function(r) {
+        if (!r.ok) throw new Error('OWM HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        applyWeatherData(data);
+      })
+      .catch(function(err) {
+        console.log('[Weather] Fetch gagal:', err.message, '— menggunakan nilai slider.');
+        setSourceLabel('src-temp',  '· offline');
+        setSourceLabel('src-humid', '· offline');
+        setSourceLabel('src-sky',   '· offline');
+        var badge = document.getElementById('api-status-badge');
+        if (badge) { badge.textContent = '· OWM offline'; badge.style.display = 'inline'; }
+      });
+  }
+
+  // ── Tombol reset override ─────────────────────────────────
+  // Ketika user memilih preset → reset override flags
+  var origApplyPreset = window.applyPreset;
+  window.applyPreset = function(btn, key) {
+    userOverride.temp  = false;
+    userOverride.humid = false;
+    userOverride.sky   = false;
+    if (typeof origApplyPreset === 'function') origApplyPreset(btn, key);
+    // Setelah preset: re-fetch untuk re-apply weather
+    fetchWeather();
+    setSourceLabel('src-hour', '· WIB live');
+  };
+
+  // ── Init ──────────────────────────────────────────────────
+  scheduleClockTick();
+  fetchWeather();
+  setInterval(fetchWeather, UPDATE_INTERVAL_MS);
 
 })();
 </script>
